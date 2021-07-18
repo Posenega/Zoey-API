@@ -9,6 +9,15 @@ const userSchema = new Schema({
   books: [{ type: mongoose.Types.ObjectId, required: true, ref: "Book" }],
   favoriteBooks: [{ type: mongoose.Types.ObjectId, required: true }],
   imageUrl: { type: String, required: false },
+  status: {
+    type: String,
+    enum: ["Pending", "Active"],
+    default: "Pending",
+  },
+  confirmationCode: {
+    type: String,
+    unique: true,
+  },
 });
 
 module.exports = mongoose.model("User", userSchema);

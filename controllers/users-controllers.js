@@ -1,7 +1,9 @@
 const fs = require("fs");
+const path = require("path");
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("../configs/transport");
 
 const HttpError = require("../models/http-error");
 const User = require("../models/user");
@@ -136,6 +138,12 @@ const signup = async (req, res, next) => {
       new HttpError("Invalid inputs passed, please check your data.", 422)
     );
   }
+  const characters =
+    "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let code = "";
+  for (let i = 0; i < 25; i++) {
+    code += characters[Math.floor(Math.random() * characters.length)];
+  }
 
   const { firstName, lastName, email, password } = req.body;
 
@@ -178,10 +186,22 @@ const signup = async (req, res, next) => {
     password: hashedPassword,
     books: [],
     favoriteBooks: [],
+    confirmationCode: code,
   });
 
   try {
-    await createdUser.save();
+    await createdUser.save((err) => {
+      if (err) {
+        res.status(500).send({ message: err });
+        return;
+      }
+
+      nodemailer.sendConfirmationEmail(
+        createdUser.firstName,
+        createdUser.email,
+        createdUser.confirmationCode
+      );
+    });
   } catch (err) {
     const error = new HttpError(
       "Signing up failed, please try again later.",
@@ -238,6 +258,12 @@ const login = async (req, res, next) => {
     return next(error);
   }
 
+  if (existingUser.status != "Active") {
+    return res.status(401).send({
+      message: "Pending Account. Please Verify Your Email!",
+    });
+  }
+
   let isValidPassword = false;
   try {
     isValidPassword = await bcrypt.compare(password, existingUser.password);
@@ -282,6 +308,29 @@ const login = async (req, res, next) => {
   }
 };
 
+const verifyUser = (req, res, next) => {
+  User.findOne({
+    confirmationCode: req.params.confirmationCode,
+  })
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send({ message: "User Not found." });
+      }
+
+      user.status = "Active";
+      user.save((err) => {
+        if (err) {
+          res.status(500).send({ message: err });
+          return;
+        }
+
+        res.sendFile(path.join(__dirname, "../public", "confirmed.html"));
+      });
+    })
+    .catch((e) => console.log("error", e));
+};
+
+exports.verifyUser = verifyUser;
 exports.updateUser = updateUser;
 exports.getUser = getUser;
 exports.signup = signup;

@@ -9,6 +9,8 @@ const router = express.Router();
 
 router.get("/:uid", usersControllers.getUser);
 
+router.get("/auth/confirm/:confirmationCode", usersControllers.verifyUser);
+
 router.post(
   "/signup",
   // imageUpload.single("image"),
