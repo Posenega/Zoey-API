@@ -189,13 +189,14 @@ const deleteBook = async (req, res, next) => {
     return next(error);
   }
 
-  const imagePath = book.image;
+  const imagePath = book.imageUrl;
 
   try {
     // const sess = await mongoose.startSession();
     // sess.startTransaction(); { session: sess }
     await book.remove();
     book.creator.books.pull(book);
+    book.creator.favoriteBooks.pull(book);
     await book.creator.save();
     // await sess.commitTransaction(); { session: sess }
   } catch (err) {

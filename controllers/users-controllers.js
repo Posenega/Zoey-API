@@ -1,3 +1,4 @@
+const fs = require("fs");
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -30,8 +31,7 @@ const getUser = async (req, res, next) => {
 
 const updateUser = async (req, res, next) => {
   const body = JSON.parse(JSON.stringify(req.body));
-  console.log("update sent");
-  console.log(body);
+
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return next(
@@ -40,13 +40,11 @@ const updateUser = async (req, res, next) => {
   }
 
   const { firstName, lastName, id, old_password, new_password } = body;
-  console.log(id);
 
   let user;
 
   try {
     user = await User.findById(id);
-    console.log(user);
   } catch (err) {
     console.log(err);
     const error = new HttpError(
@@ -64,7 +62,9 @@ const updateUser = async (req, res, next) => {
   if (old_password && new_password) {
     let isValidPassword = false;
     try {
+      console.log("hi");
       isValidPassword = await bcrypt.compare(old_password, user.password);
+      console.log(isValidPassword);
     } catch (err) {
       const error = new HttpError(
         "Invalid credentials, please try again.",
@@ -95,12 +95,23 @@ const updateUser = async (req, res, next) => {
     user.password = hashedPassword;
   }
 
+  const imagePath = user.imageUrl;
+
   firstName && (user.firstName = firstName);
   lastName && (user.lastName = lastName);
-  req.file.path && (user.imageUrl = req.file.path);
+  user.password = user.password;
+  if (req.file === undefined) {
+    console.log("undefined");
+  } else {
+    imagePath === undefined
+      ? null
+      : fs.unlink(imagePath, (err) => {
+          console.log(err);
+        });
+    user.imageUrl = req.file.path;
+  }
 
   try {
-    console.log("try");
     await user.save();
   } catch (err) {
     console.log(err);
