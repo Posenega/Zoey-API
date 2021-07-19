@@ -19,7 +19,7 @@ const getBooks = async (req, res, next) => {
   }
 
   res.json({
-    books: books.map((book) => book.toObject({ getters: true })),
+    books: books.reverse().map((book) => book.toObject({ getters: true })),
   });
 };
 
