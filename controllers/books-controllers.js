@@ -116,6 +116,7 @@ const createBook = async (req, res, next) => {
     return next(error);
   }
 
+  console.log(createdBook);
   res.status(201).json({ book: createdBook });
 };
 
@@ -302,10 +303,13 @@ const removeFavorite = async (req, res, next) => {
 
 const getFavorite = async (req, res, next) => {
   const userId = req.params.uid;
-
+  console.log(userId);
   let userWithBooks;
   try {
-    userWithBooks = await User.findById(userId);
+    userWithBooks = await User.findById(userId)
+      .select("favoriteBooks")
+      .populate("favoriteBooks");
+    console.log(userWithBooks);
   } catch (err) {
     const error = new HttpError(
       "Fetching books failed, please try again later.",
@@ -314,15 +318,8 @@ const getFavorite = async (req, res, next) => {
     return next(error);
   }
 
-  const favoriteBooks = await Promise.all(
-    userWithBooks.favoriteBooks.map(async (book) => {
-      favBook = await Book.findById(book);
-      return favBook;
-    })
-  );
-
   res.json({
-    books: favoriteBooks,
+    books: userWithBooks.favoriteBooks,
   });
 };
 

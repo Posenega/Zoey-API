@@ -9,8 +9,12 @@ const mongoose = require("mongoose");
 const HttpError = require("./models/http-error");
 const bookRoutes = require("./routes/book-routes");
 const usersRoutes = require("./routes/users-routes");
+const conversationRoute = require("./routes/conversations");
+const messageRoute = require("./routes/messages");
 
 const app = express();
+const server = require("http").createServer(app);
+const io = require("socket.io")(server);
 
 mongoose.set("useCreateIndex", true);
 app.use(bodyParser.json());
@@ -30,6 +34,8 @@ app.use((req, res, next) => {
 
 app.use("/api/books", bookRoutes);
 app.use("/api/users", usersRoutes);
+app.use("/api/conversations", conversationRoute);
+app.use("/api/messages", messageRoute);
 
 app.use((req, res, next) => {
   const error = new HttpError("Could not find this route.", 404);
@@ -49,6 +55,14 @@ app.use((error, req, res, next) => {
   res.json({ message: error.message || "An unknown error occurred!" });
 });
 
+io.on("connection", (socket) => {
+  // console.log("a user connected :D");
+  socket.on("chat message", (msg) => {
+    console.log(msg);
+    io.emit("chat message", msg);
+  });
+});
+
 mongoose
   .connect(
     "mongodb://localhost:27017/book-app",
@@ -59,7 +73,8 @@ mongoose
     }
   )
   .then(() => {
-    app.listen(5000);
+    server.listen(5000);
+    console.log("server running");
   })
   .catch((err) => {
     console.log(err);

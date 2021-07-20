@@ -15,13 +15,4 @@ const bookSchema = new Schema(
   { autoCreate: true }
 );
 
-bookSchema.method("transform", function () {
-  var obj = this.toObject();
-
-  obj.id = obj._id;
-  delete obj._id;
-
-  return obj;
-});
-
 module.exports = mongoose.model("Book", bookSchema);

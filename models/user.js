@@ -7,7 +7,9 @@ const userSchema = new Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true, minlength: 6 },
   books: [{ type: mongoose.Types.ObjectId, required: true, ref: "Book" }],
-  favoriteBooks: [{ type: mongoose.Types.ObjectId, required: true }],
+  favoriteBooks: [
+    { type: mongoose.Types.ObjectId, required: true, ref: "Book" },
+  ],
   imageUrl: { type: String, required: false },
   status: {
     type: String,

@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.get("/:uid", usersControllers.getUser);
 
-router.get("/auth/confirm/:confirmationCode", usersControllers.verifyUser);
+router.post("/:uid/confirm", usersControllers.verifyUser);
 
 router.post(
   "/signup",
@@ -27,7 +27,7 @@ router.post(
 
 router.post("/login", usersControllers.login);
 
-router.use(checkAuth);
+// router.use(checkAuth);
 
 router.patch(
   "/update",
