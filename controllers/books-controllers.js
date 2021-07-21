@@ -77,7 +77,7 @@ const createBook = async (req, res, next) => {
     );
   }
 
-  const { title, description, author, type, category } = body;
+  const { title, description, author, type, category, price } = body;
 
   const createdBook = new Book({
     title,
@@ -87,6 +87,7 @@ const createBook = async (req, res, next) => {
     author,
     type,
     category,
+    price: type === "sell" ? price : null,
   });
 
   let user;
@@ -114,7 +115,6 @@ const createBook = async (req, res, next) => {
     return next(error);
   }
 
-  console.log(createdBook);
   res.status(201).json({ book: createdBook });
 };
 
@@ -214,7 +214,6 @@ const deleteBook = async (req, res, next) => {
 };
 
 const addFavorite = async (req, res, next) => {
-  console.log("req sent");
   const bookId = req.params.bookId;
 
   let selectedBook;
@@ -301,13 +300,12 @@ const removeFavorite = async (req, res, next) => {
 
 const getFavorite = async (req, res, next) => {
   const userId = req.params.uid;
-  console.log(userId);
+
   let userWithBooks;
   try {
     userWithBooks = await User.findById(userId)
       .select("favoriteBooks")
       .populate("favoriteBooks");
-    console.log(userWithBooks);
   } catch (err) {
     const error = new HttpError(
       "Fetching books failed, please try again later.",

@@ -303,7 +303,6 @@ const login = async (req, res, next) => {
 };
 
 const verifyUser = (req, res, next) => {
-  console.log(req.params.uid);
   User.findById(req.params.uid)
     .then((user) => {
       if (!user) {
