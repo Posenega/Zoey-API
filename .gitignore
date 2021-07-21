@@ -6,3 +6,4 @@ uploads/*
 !uploads/images
 uploads/images/*
 !uploads/images/.gitkeep
+.env
