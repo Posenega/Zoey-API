@@ -40,8 +40,8 @@ app.use((req, res, next) => {
 
 app.use('/api/books', bookRoutes);
 app.use('/api/users', usersRoutes);
-app.use('/api/conversations', conversationRoute);
-app.use('/api/messages', messageRoute);
+// app.use('/api/conversations', conversationRoute);
+// app.use('/api/messages', messageRoute);
 
 app.use((req, res, next) => {
   const error = new HttpError('Could not find this route.', 404);
