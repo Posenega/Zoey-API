@@ -9,8 +9,8 @@ const mongoose = require('mongoose');
 const HttpError = require('./models/http-error');
 const bookRoutes = require('./routes/book-routes');
 const usersRoutes = require('./routes/users-routes');
-const conversationRoute = require('./routes/conversations');
-const messageRoute = require('./routes/messages');
+// const conversationRoute = require('./routes/conversations');
+// const messageRoute = require('./routes/messages');
 
 const app = express();
 const server = require('http').createServer(app);
