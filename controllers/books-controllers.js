@@ -89,8 +89,6 @@ const createBook = async (req, res, next) => {
     category,
   });
 
-  res.status(200);
-
   let user;
   try {
     user = await User.findById(req.userData.userId);
