@@ -73,7 +73,8 @@ io.on('connection', (socket) => {
 
 mongoose
   .connect(
-    'mongodb://localhost:27017/book-app',
+    process.env.MONGODB_URI ||
+      'mongodb+srv://admin-theo:8B65Ifa6H1WjMplH@cluster0.thjfn.mongodb.net/BookAppDatabase?retryWrites=true&w=majority',
     // `mongodb://${process.env.CONNECTION_NAME}:27017,${process.env.CONNECTION_NAME}:27018,${process.env.CONNECTION_NAME}:27019/book-app?replicaSet=rs`,
     {
       useUnifiedTopology: true,
