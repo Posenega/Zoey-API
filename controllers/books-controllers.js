@@ -1,25 +1,27 @@
-const fs = require("fs");
+const fs = require('fs');
 
-const { validationResult } = require("express-validator");
-const mongoose = require("mongoose");
+const { validationResult } = require('express-validator');
+const mongoose = require('mongoose');
 
-const HttpError = require("../models/http-error");
-const Book = require("../models/book");
-const User = require("../models/user");
+const HttpError = require('../models/http-error');
+const Book = require('../models/book');
+const User = require('../models/user');
 
 const getBooks = async (req, res, next) => {
   try {
     books = await Book.find();
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong, could not find a book.",
+      'Something went wrong, could not find a book.',
       500
     );
     return next(error);
   }
 
   res.json({
-    books: books.reverse().map((book) => book.toObject({ getters: true })),
+    books: books
+      .reverse()
+      .map((book) => book.toObject({ getters: true })),
   });
 };
 
@@ -31,7 +33,7 @@ const getBookById = async (req, res, next) => {
     book = await Book.findById(bookId);
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong, could not find a book.",
+      'Something went wrong, could not find a book.',
       500
     );
     return next(error);
@@ -39,7 +41,7 @@ const getBookById = async (req, res, next) => {
 
   if (!book) {
     const error = new HttpError(
-      "Could not find book for the provided id.",
+      'Could not find book for the provided id.',
       404
     );
     return next(error);
@@ -53,17 +55,19 @@ const getBooksByUserId = async (req, res, next) => {
 
   let userWithBooks;
   try {
-    userWithBooks = await User.findById(userId).populate("books");
+    userWithBooks = await User.findById(userId).populate('books');
   } catch (err) {
     const error = new HttpError(
-      "Fetching books failed, please try again later.",
+      'Fetching books failed, please try again later.',
       500
     );
     return next(error);
   }
 
   res.json({
-    books: userWithBooks.books.map((book) => book.toObject({ getters: true })),
+    books: userWithBooks.books.map((book) =>
+      book.toObject({ getters: true })
+    ),
   });
 };
 
@@ -73,11 +77,22 @@ const createBook = async (req, res, next) => {
 
   if (!errors.isEmpty()) {
     return next(
-      new HttpError("Invalid inputs passed, please check your data.", 422)
+      new HttpError(
+        'Invalid inputs passed, please check your data.',
+        422
+      )
     );
   }
 
-  const { title, description, author, type, category, price } = body;
+  const {
+    title,
+    description,
+    author,
+    type,
+    category,
+    price,
+    condition,
+  } = body;
 
   const createdBook = new Book({
     title,
@@ -87,19 +102,26 @@ const createBook = async (req, res, next) => {
     author,
     type,
     category,
-    price: type === "sell" ? price : null,
+    price: type === 'sell' ? price : null,
+    condition,
   });
 
   let user;
   try {
     user = await User.findById(req.userData.userId);
   } catch (err) {
-    const error = new HttpError("Creating book failed, please try again.", 500);
+    const error = new HttpError(
+      'Creating book failed, please try again.',
+      500
+    );
     return next(error);
   }
 
   if (!user) {
-    const error = new HttpError("Could not find user for provided id.", 404);
+    const error = new HttpError(
+      'Could not find user for provided id.',
+      404
+    );
     return next(error);
   }
 
@@ -111,7 +133,10 @@ const createBook = async (req, res, next) => {
     await user.save();
     // await sess.commitTransaction(); { session: sess }
   } catch (err) {
-    const error = new HttpError("Creating book failed, please try again.", 500);
+    const error = new HttpError(
+      'Creating book failed, please try again.',
+      500
+    );
     return next(error);
   }
 
@@ -122,7 +147,10 @@ const updateBook = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return next(
-      new HttpError("Invalid inputs passed, please check your data.", 422)
+      new HttpError(
+        'Invalid inputs passed, please check your data.',
+        422
+      )
     );
   }
 
@@ -134,14 +162,17 @@ const updateBook = async (req, res, next) => {
     book = await Book.findById(bookId);
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong, could not update book.",
+      'Something went wrong, could not update book.',
       500
     );
     return next(error);
   }
 
   if (book.creator.toString() !== req.userData.userId) {
-    const error = new HttpError("You are not allowed to edit this book.", 401);
+    const error = new HttpError(
+      'You are not allowed to edit this book.',
+      401
+    );
     return next(error);
   }
 
@@ -152,7 +183,7 @@ const updateBook = async (req, res, next) => {
     await book.save();
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong, could not update book.",
+      'Something went wrong, could not update book.',
       500
     );
     return next(error);
@@ -166,23 +197,26 @@ const deleteBook = async (req, res, next) => {
 
   let book;
   try {
-    book = await Book.findById(bookId).populate("creator");
+    book = await Book.findById(bookId).populate('creator');
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong, could not delete book.",
+      'Something went wrong, could not delete book.',
       500
     );
     return next(error);
   }
 
   if (!book) {
-    const error = new HttpError("Could not find book for this id.", 404);
+    const error = new HttpError(
+      'Could not find book for this id.',
+      404
+    );
     return next(error);
   }
 
   if (book.creator.id !== req.userData.userId) {
     const error = new HttpError(
-      "You are not allowed to delete this book.",
+      'You are not allowed to delete this book.',
       401
     );
     return next(error);
@@ -200,7 +234,7 @@ const deleteBook = async (req, res, next) => {
     // await sess.commitTransaction(); { session: sess }
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong, could not delete book.",
+      'Something went wrong, could not delete book.',
       500
     );
     return next(error);
@@ -210,7 +244,7 @@ const deleteBook = async (req, res, next) => {
     console.log(err);
   });
 
-  res.status(200).json({ message: "Deleted book." });
+  res.status(200).json({ message: 'Deleted book.' });
 };
 
 const addFavorite = async (req, res, next) => {
@@ -221,7 +255,7 @@ const addFavorite = async (req, res, next) => {
     selectedBook = await Book.findById(bookId);
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong, could not find book.",
+      'Something went wrong, could not find book.',
       500
     );
     return next(error);
@@ -231,12 +265,18 @@ const addFavorite = async (req, res, next) => {
   try {
     user = await User.findById(req.body.userId);
   } catch (err) {
-    const error = new HttpError("Creating book failed, please try again.", 500);
+    const error = new HttpError(
+      'Creating book failed, please try again.',
+      500
+    );
     return next(error);
   }
 
   if (!user) {
-    const error = new HttpError("Could not find user for provided id.", 404);
+    const error = new HttpError(
+      'Could not find user for provided id.',
+      404
+    );
     return next(error);
   }
 
@@ -245,7 +285,10 @@ const addFavorite = async (req, res, next) => {
     await user.save();
   } catch (err) {
     console.log(err);
-    const error = new HttpError("Adding book failed, please try again.", 500);
+    const error = new HttpError(
+      'Adding book failed, please try again.',
+      500
+    );
     return next(error);
   }
 
@@ -260,7 +303,7 @@ const removeFavorite = async (req, res, next) => {
     selectedBook = await Book.findById(bookId);
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong, could not find book.",
+      'Something went wrong, could not find book.',
       500
     );
     return next(error);
@@ -271,14 +314,17 @@ const removeFavorite = async (req, res, next) => {
     user = await User.findById(req.body.userId);
   } catch (err) {
     const error = new HttpError(
-      "Removing favorite failed, please try again.",
+      'Removing favorite failed, please try again.',
       500
     );
     return next(error);
   }
 
   if (!user) {
-    const error = new HttpError("Could not find user for provided id.", 404);
+    const error = new HttpError(
+      'Could not find user for provided id.',
+      404
+    );
     return next(error);
   }
 
@@ -289,13 +335,13 @@ const removeFavorite = async (req, res, next) => {
   } catch (err) {
     console.log(err);
     const error = new HttpError(
-      "Removing favorite failed, please try again.",
+      'Removing favorite failed, please try again.',
       500
     );
     return next(error);
   }
 
-  res.status(201).json({ message: "Removed favorite." });
+  res.status(201).json({ message: 'Removed favorite.' });
 };
 
 const getFavorite = async (req, res, next) => {
@@ -304,11 +350,11 @@ const getFavorite = async (req, res, next) => {
   let userWithBooks;
   try {
     userWithBooks = await User.findById(userId)
-      .select("favoriteBooks")
-      .populate("favoriteBooks");
+      .select('favoriteBooks')
+      .populate('favoriteBooks');
   } catch (err) {
     const error = new HttpError(
-      "Fetching books failed, please try again later.",
+      'Fetching books failed, please try again later.',
       500
     );
     return next(error);
