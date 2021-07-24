@@ -9,8 +9,6 @@ router.post("/", chatControllers.createChat);
 
 router.get("/", chatControllers.getChats);
 
-router.get("/:chatId/messages", chatControllers.fetchChatMessages);
-
 router.post("/:chatId/messages", chatControllers.createMessage);
 
 module.exports = router;
