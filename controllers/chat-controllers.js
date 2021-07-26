@@ -15,7 +15,7 @@ const _filterChat = (chat, userId) => {
   delete myChat.user1;
   delete myChat.user2;
   if (myChat.messages) {
-    myChat.messages = myChat.messages.map((m) => {
+    myChat.messages = myChat.messages.reverse().map((m) => {
       const message = m._doc;
       message.isMine = message.sender.equals(userId);
       delete message.sender;
@@ -63,14 +63,12 @@ const createChat = async (req, res, next) => {
 
     const savedChat = await chat.save();
     const populatedSavedChat = await savedChat
-      .populate("user1", "firstName lastName", {
-        _id: { $ne: req.userData.userId },
-      })
-      .populate("user2", "firstName lastName", {
-        _id: { $ne: req.userData.userId },
-      })
+      .populate("user2", "firstName lastName")
       .execPopulate();
-    res.status(200).json({ chat: _filterChat(populatedSavedChat) });
+    delete populatedSavedChat._doc.user1;
+    populatedSavedChat._doc.user2 = populatedSavedChat._doc.user;
+    delete populatedSavedChat._doc.user2;
+    res.status(200).json({ chat: populatedSavedChat._doc });
   } catch (error) {
     next(error);
   }
@@ -182,30 +180,27 @@ const getChats = async (req, res, next) => {
   }
 };
 
-const createMessage = async (req, res, next) => {
+const createMessage = async (userId, chatId, text) => {
   try {
-    const chat = await Chat.findById(req.params.chatId);
+    const chat = await Chat.findById(chatId);
     if (!chat) {
       const error = new HttpError("Wrong chat id.", 401);
-      return next(error);
+      throw error;
     }
 
-    if (
-      !chat.user1.equals(req.userData.userId) &&
-      !chat.user2.equals(req.userData.userId)
-    ) {
+    if (!chat.user1.equals(userId) && !chat.user2.equals(userId)) {
       const error = new HttpError("Insufficient permissions.", 401);
-      return next(error);
+      throw error;
     }
     const message = new Message({
-      text: req.body.text,
-      sender: req.userData.userId,
+      text: text,
+      sender: userId,
     });
     chat.messages.push(message);
     await chat.save();
-    res.status(200).json({ messsage: "Message sent", sentMessage: message });
+    return message;
   } catch (error) {
-    return next(error);
+    throw error;
   }
 };
 
