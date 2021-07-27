@@ -11,6 +11,7 @@ const userSchema = new Schema({
     { type: mongoose.Types.ObjectId, required: true, ref: "Book" },
   ],
   imageUrl: { type: String, required: false },
+  city: { type: String, required: true },
   status: {
     type: String,
     enum: ["Pending", "Active"],

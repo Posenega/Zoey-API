@@ -144,7 +144,7 @@ const signup = async (req, res, next) => {
     code += characters[Math.floor(Math.random() * characters.length)];
   }
 
-  const { firstName, lastName, email, password } = req.body;
+  const { firstName, lastName, email, password, city } = req.body;
 
   let existingUser;
   try {
@@ -186,6 +186,7 @@ const signup = async (req, res, next) => {
     books: [],
     favoriteBooks: [],
     confirmationCode: code,
+    city,
   });
 
   try {
