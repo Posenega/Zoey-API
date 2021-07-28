@@ -69,6 +69,7 @@ const getBooksByUserId = async (req, res, next) => {
 
 const createBook = async (req, res, next) => {
   const body = JSON.parse(JSON.stringify(req.body));
+
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -82,14 +83,14 @@ const createBook = async (req, res, next) => {
     description,
     author,
     type,
-    category,
+    categories,
     price,
     condition,
     isForSchool,
     isPackage,
     grade,
   } = body;
-  console.log(author);
+
   const createdBook = new Book({
     title,
     description,
@@ -97,7 +98,7 @@ const createBook = async (req, res, next) => {
     creator: req.userData.userId,
     author: author ? author : null,
     type,
-    category,
+    categories: JSON.parse(categories),
     isPackage,
     isForSchool,
     price: type === "sell" ? price : null,
@@ -110,7 +111,7 @@ const createBook = async (req, res, next) => {
     user = await User.findById(req.userData.userId);
   } catch (err) {
     const error = new HttpError("Creating book failed, please try again.", 500);
-    console.log(error);
+
     return next(error);
   }
 

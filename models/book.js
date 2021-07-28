@@ -14,7 +14,7 @@ const bookSchema = new Schema(
       ref: "User",
     },
     imageUrl: { type: String, required: true },
-    category: { type: String, required: true },
+    categories: { type: Array, required: true },
     price: { type: Number, required: false },
     condition: { type: String, required: true },
     isForSchool: { type: Boolean, required: true },
