@@ -10,6 +10,7 @@ const HttpError = require("./models/http-error");
 const bookRoutes = require("./routes/book-routes");
 const usersRoutes = require("./routes/users-routes");
 const chatRoutes = require("./routes/chats-routes");
+const packagesRoutes = require("./routes/package-routes");
 
 const app = express();
 const server = require("http").createServer(app);
@@ -33,6 +34,8 @@ app.use((req, res, next) => {
 app.use("/api/books", bookRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/chats", chatRoutes);
+app.use("/api/packages", packagesRoutes);
+
 require("./sockets")(io);
 
 app.use((req, res, next) => {

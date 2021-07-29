@@ -8,6 +8,7 @@ const Book = require("../models/book");
 const User = require("../models/user");
 
 const getBooks = async (req, res, next) => {
+  let books;
   try {
     books = await Book.find();
   } catch (err) {
@@ -87,7 +88,6 @@ const createBook = async (req, res, next) => {
     price,
     condition,
     isForSchool,
-    isPackage,
     grade,
   } = body;
 
@@ -99,7 +99,6 @@ const createBook = async (req, res, next) => {
     author: author ? author : null,
     type,
     categories: JSON.parse(categories),
-    isPackage,
     isForSchool,
     price: type === "sell" ? price : null,
     condition,

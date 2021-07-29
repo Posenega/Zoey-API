@@ -18,7 +18,6 @@ const bookSchema = new Schema(
     price: { type: Number, required: false },
     condition: { type: String, required: true },
     isForSchool: { type: Boolean, required: true },
-    isPackage: { type: Boolean, required: true },
     grade: { type: String, required: false },
   },
   { autoCreate: true }
