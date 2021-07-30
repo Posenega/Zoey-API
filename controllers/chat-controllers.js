@@ -65,9 +65,11 @@ const createChat = async (req, res, next) => {
     const populatedSavedChat = await savedChat
       .populate("user2", "firstName lastName")
       .execPopulate();
+    console.log(populatedSavedChat);
     delete populatedSavedChat._doc.user1;
-    populatedSavedChat._doc.user2 = populatedSavedChat._doc.user;
+    populatedSavedChat._doc.user = populatedSavedChat._doc.user2;
     delete populatedSavedChat._doc.user2;
+    console.log(populatedSavedChat._doc);
     res.status(200).json({ chat: populatedSavedChat._doc });
   } catch (error) {
     next(error);
