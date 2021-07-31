@@ -69,69 +69,69 @@ const getBooksByUserId = async (req, res, next) => {
 };
 
 const createBook = async (req, res, next) => {
-  const body = JSON.parse(JSON.stringify(req.body));
-
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    return next(
-      new HttpError("Invalid inputs passed, please check your data.", 422)
-    );
-  }
-
-  const {
-    title,
-    description,
-    author,
-    type,
-    categories,
-    price,
-    condition,
-    isForSchool,
-    grade,
-  } = body;
-
-  const createdBook = new Book({
-    title,
-    description,
-    imageUrl: req.file.path,
-    creator: req.userData.userId,
-    author: author ? author : null,
-    type,
-    categories: JSON.parse(categories),
-    isForSchool,
-    price: type === "sell" ? price : null,
-    condition,
-    grade: grade ? grade : null,
-  });
-
-  let user;
   try {
+    const body = JSON.parse(JSON.stringify(req.body));
+    console.log(body);
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return next(
+        new HttpError("Invalid inputs passed, please check your data.", 422)
+      );
+    }
+
+    const {
+      title,
+      description,
+      author,
+      type,
+      categories,
+      price,
+      condition,
+      isForSchool,
+      grade,
+      isPackage,
+      numberOfBooks,
+    } = body;
+
+    const createdBook = new Book({
+      title,
+      description,
+      numberOfBooks,
+      imageUrl: req.file.path,
+      creator: req.userData.userId,
+      author: author ? author : null,
+      type,
+      categories: JSON.parse(categories),
+      isForSchool,
+      price: type === "sell" ? price : null,
+      condition,
+      grade: grade ? grade : null,
+      isPackage,
+    });
+
+    let user;
+
     user = await User.findById(req.userData.userId);
-  } catch (err) {
-    const error = new HttpError("Creating book failed, please try again.", 500);
 
-    return next(error);
-  }
+    if (!user) {
+      const error = new HttpError("Could not find user for provided id.", 404);
+      return next(error);
+    }
 
-  if (!user) {
-    const error = new HttpError("Could not find user for provided id.", 404);
-    return next(error);
-  }
-
-  try {
     // const sess = await mongoose.startSession();
     // sess.startTransaction(); { session: sess }
     await createdBook.save();
     user.books.push(createdBook);
     await user.save();
     // await sess.commitTransaction(); { session: sess }
+
+    res.status(201).json({ book: createdBook });
   } catch (err) {
     const error = new HttpError("Creating book failed, please try again.", 500);
     return next(error);
   }
-
-  res.status(201).json({ book: createdBook });
 };
 
 const updateBook = async (req, res, next) => {

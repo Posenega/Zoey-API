@@ -63,7 +63,7 @@ const createChat = async (req, res, next) => {
 
     const savedChat = await chat.save();
     const populatedSavedChat = await savedChat
-      .populate("user2", "firstName lastName")
+      .populate("user2", "firstName lastName imageUrl")
       .execPopulate();
     console.log(populatedSavedChat);
     delete populatedSavedChat._doc.user1;
@@ -137,10 +137,10 @@ const getChats = async (req, res, next) => {
         return next(error);
       }
       const populatedChat = await chat
-        .populate("user1", "firstName lastName", {
+        .populate("user1", "firstName lastName imageUrl", {
           _id: { $ne: req.userData.userId },
         })
-        .populate("user2", "firstName lastName", {
+        .populate("user2", "firstName lastName imageUrl", {
           _id: { $ne: req.userData.userId },
         })
         .populate("messages")
@@ -149,29 +149,32 @@ const getChats = async (req, res, next) => {
         .status(200)
         .json({ chat: _filterChat(populatedChat, req.userData.userId) });
     } else {
-      const chats = await Chat.find({
-        $and: [
-          {
-            $or: [
-              {
-                user1: req.userData.userId,
-              },
-              {
-                user2: req.userData.userId,
-              },
-            ],
-          },
-          // {
-          //   "messages.0": {
-          //     $exists: true,
-          //   },
-          // },
-        ],
-      })
-        .populate("user1", "firstName lastName", {
+      const chats = await Chat.find(
+        {
+          $and: [
+            {
+              $or: [
+                {
+                  user1: req.userData.userId,
+                },
+                {
+                  user2: req.userData.userId,
+                },
+              ],
+            },
+            // {
+            //   "messages.0": {
+            //     $exists: true,
+            //   },
+            // },
+          ],
+        },
+        { messages: { $slice: -1 } }
+      )
+        .populate("user1", "firstName lastName imageUrl", {
           _id: { $ne: req.userData.userId },
         })
-        .populate("user2", "firstName lastName", {
+        .populate("user2", "firstName lastName imageUrl", {
           _id: { $ne: req.userData.userId },
         });
 
