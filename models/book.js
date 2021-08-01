@@ -14,12 +14,10 @@ const bookSchema = new Schema(
       ref: "User",
     },
     imageUrl: { type: String, required: true },
-    isPackage: { type: Boolean, required: true },
     categories: { type: Array, required: true },
     price: { type: Number, required: false },
     condition: { type: String, required: true },
     isForSchool: { type: Boolean, required: true },
-    numberOfBooks: { type: Number, required: false },
     grade: { type: String, required: false },
   },
   { autoCreate: true }

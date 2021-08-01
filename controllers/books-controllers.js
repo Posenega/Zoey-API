@@ -91,7 +91,6 @@ const createBook = async (req, res, next) => {
       condition,
       isForSchool,
       grade,
-      isPackage,
       numberOfBooks,
     } = body;
 
@@ -108,7 +107,6 @@ const createBook = async (req, res, next) => {
       price: type === "sell" ? price : null,
       condition,
       grade: grade ? grade : null,
-      isPackage,
     });
 
     let user;
