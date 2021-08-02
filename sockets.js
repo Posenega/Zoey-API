@@ -26,6 +26,20 @@ module.exports = (io) => {
           callback({ error });
         }
       });
+      socket.on("addRoom", async ({ secondUserId }, callback) => {
+        try {
+          const chat = await chatControllers.createChat(userId, secondUserId);
+          callback({ chat });
+          socket.to(secondUserId).emit("roomAdded", {
+            roomId: chat._id,
+            userId: chat.user._id,
+            userImageUrl: chat.user.imageUrl,
+            username: chat.user.firstName + "" + chat.user.lastName,
+          });
+        } catch (error) {
+          callback({ error });
+        }
+      });
     }
   });
 };

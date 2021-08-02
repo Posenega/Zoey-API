@@ -25,24 +25,24 @@ const _filterChat = (chat, userId) => {
   return myChat;
 };
 
-const createChat = async (req, res, next) => {
+const createChat = async (userId, secondUserId) => {
   try {
     const existingChat = await Chat.findOne({
       $or: [
         {
           $and: [
             {
-              user1: req.userData.userId,
+              user1: userId,
             },
-            { user2: req.body.secondUserId },
+            { user2: secondUserId },
           ],
         },
         {
           $and: [
             {
-              user2: req.body.secondUserId,
+              user2: secondUserId,
             },
-            { user1: req.userData.userId },
+            { user1: userId },
           ],
         },
       ],
@@ -52,12 +52,12 @@ const createChat = async (req, res, next) => {
         "Chat already exists, can't have two chats with the same user.",
         404
       );
-      return next(error);
+      throw error;
     }
 
     const chat = new Chat({
-      user1: req.userData.userId,
-      user2: req.body.secondUserId,
+      user1: userId,
+      user2: secondUserId,
       messages: [],
     });
 
@@ -69,10 +69,10 @@ const createChat = async (req, res, next) => {
     delete populatedSavedChat._doc.user1;
     populatedSavedChat._doc.user = populatedSavedChat._doc.user2;
     delete populatedSavedChat._doc.user2;
-    console.log(populatedSavedChat._doc);
-    res.status(200).json({ chat: populatedSavedChat._doc });
+
+    return populatedSavedChat._doc;
   } catch (error) {
-    next(error);
+    throw error;
   }
 };
 
