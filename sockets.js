@@ -13,6 +13,12 @@ module.exports = (io) => {
       socket.on("leaveRoom", ({ roomId }) => {
         socket.leave(roomId);
       });
+      socket.on("subscribe", ({ userId }) => {
+        socket.join(userId);
+      });
+      socket.on("unsubscribe", ({ userId }) => {
+        socket.leave(userId);
+      });
       socket.on("sendMessage", async ({ roomId, text }, callback) => {
         try {
           const message = await chatControllers.createMessage(
