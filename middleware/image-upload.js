@@ -1,11 +1,16 @@
 const multer = require("multer");
 const uuid = require("uuid");
+const fs = require("fs");
 
 const MIME_TYPE_MAP = {
   "image/png": "png",
   "image/jpeg": "jpeg",
   "image/jpg": "jpg",
 };
+
+if (!fs.existsSync("./uploads")) {
+  fs.mkdirSync("./uploads/images", { recursive: true });
+}
 
 const imageUpload = multer({
   limits: 500000,

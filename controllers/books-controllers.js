@@ -50,11 +50,9 @@ const getBookById = async (req, res, next) => {
 };
 
 const getBooksByUserId = async (req, res, next) => {
-  const userId = req.params.uid;
-
   let userWithBooks;
   try {
-    userWithBooks = await User.findById(userId).populate("books");
+    userWithBooks = await User.findById(req.userData.userId).populate("books");
   } catch (err) {
     const error = new HttpError(
       "Fetching books failed, please try again later.",
@@ -71,7 +69,6 @@ const getBooksByUserId = async (req, res, next) => {
 const createBook = async (req, res, next) => {
   try {
     const body = JSON.parse(JSON.stringify(req.body));
-    console.log(body);
 
     const errors = validationResult(req);
 
@@ -118,15 +115,13 @@ const createBook = async (req, res, next) => {
       return next(error);
     }
 
-    // const sess = await mongoose.startSession();
-    // sess.startTransaction(); { session: sess }
     await createdBook.save();
     user.books.push(createdBook);
     await user.save();
-    // await sess.commitTransaction(); { session: sess }
 
     res.status(201).json({ book: createdBook });
   } catch (err) {
+    console.log(err);
     const error = new HttpError("Creating book failed, please try again.", 500);
     return next(error);
   }
@@ -313,13 +308,14 @@ const removeFavorite = async (req, res, next) => {
 };
 
 const getFavorite = async (req, res, next) => {
-  const userId = req.params.uid;
-
   let userWithBooks;
   try {
-    userWithBooks = await User.findById(userId)
+    userWithBooks = await User.findById(req.userData.userId)
       .select("favoriteBooks")
       .populate("favoriteBooks");
+    res.json({
+      books: userWithBooks.favoriteBooks,
+    });
   } catch (err) {
     const error = new HttpError(
       "Fetching books failed, please try again later.",
@@ -327,10 +323,6 @@ const getFavorite = async (req, res, next) => {
     );
     return next(error);
   }
-
-  res.json({
-    books: userWithBooks.favoriteBooks,
-  });
 };
 
 exports.removeFavorite = removeFavorite;
