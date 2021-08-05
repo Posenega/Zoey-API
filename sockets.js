@@ -43,11 +43,10 @@ module.exports = (io) => {
             });
 
             const recievedUserExpoPushToken = usersExpoPushTokens.find(
-              (userExpoPushToken) => userExpoPushToken.userId === recieverId
+              (userExpoPushToken) => recieverId.equals(userExpoPushToken.userId)
             )?.expoPushToken;
 
             if (Expo.isExpoPushToken(recievedUserExpoPushToken)) {
-              console.log(recievedUserExpoPushToken);
               expo.sendPushNotificationsAsync([
                 {
                   to: recievedUserExpoPushToken,
