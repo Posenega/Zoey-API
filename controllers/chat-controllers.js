@@ -202,8 +202,13 @@ const createMessage = async (userId, chatId, text) => {
       sender: userId,
     });
     chat.messages.push(message);
-    await chat.save();
-    return message;
+    const savedChat = await chat.save();
+    const latestMessage = await Message.populate(
+      savedChat.messages[savedChat.messages.length - 1],
+      { path: "sender", select: { firstName: 1, lastName: 1 } }
+    );
+
+    return latestMessage;
   } catch (error) {
     throw error;
   }

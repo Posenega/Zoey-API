@@ -320,7 +320,10 @@ const verifyUser = (req, res, next) => {
           let token;
           try {
             token = jwt.sign(
-              { userId: user.id, email: user.email },
+              {
+                userId: user.id,
+                email: user.email,
+              },
               process.env.JWT_KEY,
               { expiresIn: "1h" }
             );
