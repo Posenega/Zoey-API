@@ -203,12 +203,16 @@ const createMessage = async (userId, chatId, text) => {
     });
     chat.messages.push(message);
     const savedChat = await chat.save();
+
     const latestMessage = await Message.populate(
       savedChat.messages[savedChat.messages.length - 1],
       { path: "sender", select: { firstName: 1, lastName: 1 } }
     );
 
-    return latestMessage;
+    return {
+      message: latestMessage,
+      recieverId: chat.user1.equals(userId) ? chat.user2 : chat.user1,
+    };
   } catch (error) {
     throw error;
   }

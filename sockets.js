@@ -29,11 +29,12 @@ module.exports = (io) => {
         });
         socket.on("sendMessage", async ({ roomId, text }, callback) => {
           try {
-            const message = await chatControllers.createMessage(
+            const { message, recieverId } = await chatControllers.createMessage(
               userId,
               roomId,
               text
             );
+
             callback(message);
             socket.to(roomId).emit("message", {
               text,
@@ -42,8 +43,7 @@ module.exports = (io) => {
             });
 
             const recievedUserExpoPushToken = usersExpoPushTokens.find(
-              (userExpoPushToken) =>
-                userExpoPushToken.userId === message.sender._id
+              (userExpoPushToken) => userExpoPushToken.userId === recieverId
             )?.expoPushToken;
 
             if (Expo.isExpoPushToken(recievedUserExpoPushToken)) {
