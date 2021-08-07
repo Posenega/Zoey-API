@@ -41,12 +41,13 @@ const updateUser = async (req, res, next) => {
     );
   }
 
-  const { firstName, lastName, id, old_password, new_password } = body;
+  const { firstName, lastName, old_password, new_password, expoPushToken } =
+    body;
 
   let user;
 
   try {
-    user = await User.findById(id);
+    user = await User.findById(req.userData.userId);
   } catch (err) {
     console.log(err);
     const error = new HttpError(
@@ -100,10 +101,9 @@ const updateUser = async (req, res, next) => {
 
   firstName && (user.firstName = firstName);
   lastName && (user.lastName = lastName);
+  expoPushToken && (user.expoPushToken = expoPushToken);
   user.password = user.password;
-  if (req.file === undefined) {
-    console.log("undefined");
-  } else {
+  if (req.file) {
     imagePath === undefined
       ? null
       : fs.unlink(imagePath, (err) => {
@@ -122,12 +122,15 @@ const updateUser = async (req, res, next) => {
     );
     return next(error);
   }
-
-  res.status(200).json({
-    firstName,
-    lastName,
-    imageUrl: user.imageUrl,
-  });
+  if (firstName && lastName && req.file) {
+    res.status(200).json({
+      firstName,
+      lastName,
+      imageUrl: user.imageUrl,
+    });
+  } else {
+    res.status(200).json({});
+  }
 };
 
 const signup = async (req, res, next) => {

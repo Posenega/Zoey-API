@@ -27,10 +27,9 @@ router.post(
 
 router.post("/login", usersControllers.login);
 
-// router.use(checkAuth);
-
 router.patch(
   "/update",
+  checkAuth,
   imageUpload.single("imageUrl"),
   usersControllers.updateUser
 );
