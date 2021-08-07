@@ -35,7 +35,7 @@ module.exports = (io) => {
               text
             );
 
-            callback(message);
+            callback({ message });
             socket.to(roomId).emit("message", {
               text,
               messageId: message._id,
@@ -46,10 +46,12 @@ module.exports = (io) => {
               (userExpoPushToken) => recieverId.equals(userExpoPushToken.userId)
             )?.expoPushToken;
 
-            if (Expo.isExpoPushToken(recievedUserExpoPushToken)) {
+            console.log(expoPushToken);
+
+            if (Expo.isExpoPushToken(expoPushToken)) {
               expo.sendPushNotificationsAsync([
                 {
-                  to: recievedUserExpoPushToken,
+                  to: expoPushToken,
                   sound: "default",
                   body: text,
                   title:
