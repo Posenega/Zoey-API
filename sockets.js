@@ -63,6 +63,7 @@ module.exports = (io) => {
                   body: text,
                   title:
                     message.sender.firstName + " " + message.sender.lastName,
+                  priority: "high",
                 },
               ]);
             }
