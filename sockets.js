@@ -46,11 +46,11 @@ module.exports = (io) => {
               (userExpoPushToken) => recieverId.equals(userExpoPushToken.userId)
             )?.expoPushToken;
 
-            if (Expo.isExpoPushToken(userExpoPushToken)) {
+            if (Expo.isExpoPushToken(expoPushToken)) {
               console.log("noti send");
               expo.sendPushNotificationsAsync([
                 {
-                  to: userExpoPushToken,
+                  to: expoPushToken,
                   sound: "default",
                   body: text,
                   title:
