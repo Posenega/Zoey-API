@@ -11,6 +11,14 @@ module.exports = (io) => {
       const { expoPushToken } = socket.handshake.query;
       const token = socket.handshake.headers.authorization.split(" ")[1];
       const { userId } = jwt.verify(token, process.env.JWT_KEY);
+
+      const userExpoPushTokenIndex = usersExpoPushTokens.findIndex(
+        (usersExpoPushToken) => usersExpoPushToken.userId === userId
+      );
+
+      if (userExpoPushTokenIndex >= 0) {
+        usersExpoPushTokens.slice(userExpoPushTokenIndex, 1);
+      }
       usersExpoPushTokens.push({ userId, expoPushToken });
       const expo = new Expo();
 
@@ -76,11 +84,11 @@ module.exports = (io) => {
             callback({ error });
           }
         });
-        socket.on("disconnect", () => {
-          usersExpoPushTokens.filter(
-            (userExpoPushToken) => userExpoPushToken.userId !== userId
-          );
-        });
+        // socket.on("disconnect", () => {
+        //   usersExpoPushTokens.filter(
+        //     (userExpoPushToken) => userExpoPushToken.userId !== userId
+        //   );
+        // });
       }
     } catch (e) {
       console.log(e);
