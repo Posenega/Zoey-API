@@ -22,6 +22,9 @@ const userSchema = new Schema({
     type: String,
     unique: true,
   },
+  expoPushToken: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("User", userSchema);
