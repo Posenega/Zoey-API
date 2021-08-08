@@ -56,7 +56,7 @@ module.exports = (io) => {
                   title:
                     message.sender.firstName + " " + message.sender.lastName,
                   priority: "high",
-                  data: { type: "chatRoom", userId },
+                  data: { type: "chatRoom", userId  },
                 },
               ]);
             }

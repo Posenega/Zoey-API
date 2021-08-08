@@ -7,7 +7,7 @@ const Package = require("../models/package");
 const getPackages = async (req, res, next) => {
   let packages;
   try {
-    packages = await Package.find();
+    packages = await Package.find().sort("-createdAt");
   } catch (err) {
     const error = new HttpError(
       "Something went wrong, could not find a book.",
@@ -77,6 +77,7 @@ const createPackage = async (req, res, next) => {
     user.packages.push(createdPackage);
     await user.save();
   } catch (err) {
+    console.log(err);
     const error = new HttpError(
       "Creating package failed, please try again.",
       500
