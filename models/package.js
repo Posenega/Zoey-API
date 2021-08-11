@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const fs = require("fs");
 const Schema = mongoose.Schema;
 
 const packageSchema = new Schema(
@@ -12,7 +12,7 @@ const packageSchema = new Schema(
     condition: { type: String, required: true },
     numberOfBooks: { type: Number, required: true },
     imageUrl: { type: String, required: true },
-    price: { type: String, required: true },
+    price: { type: String, required: false },
     type: { type: String, required: true },
     creator: {
       type: mongoose.Types.ObjectId,
@@ -20,7 +20,14 @@ const packageSchema = new Schema(
       ref: "User",
     },
   },
-  { autoCreate: true }
+  { autoCreate: true, timestamps: true }
 );
+
+packageSchema.pre("remove", function (next) {
+  fs.unlink(this.imageUrl, (e) => {
+    console.log(e);
+  });
+  next();
+});
 
 module.exports = mongoose.model("Package", packageSchema);

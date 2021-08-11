@@ -1,13 +1,16 @@
 const { validationResult } = require("express-validator");
 const HttpError = require("../models/http-error");
 
-const User = require("../models/user");
 const Package = require("../models/package");
 
 const getPackages = async (req, res, next) => {
   let packages;
+  let query = {};
+  if (req.query.isMine) {
+    query = { creator: req.userData.userId };
+  }
   try {
-    packages = await Package.find();
+    packages = await Package.find(query).sort("-createdAt");
   } catch (err) {
     const error = new HttpError(
       "Something went wrong, could not find a book.",
@@ -56,36 +59,25 @@ const createPackage = async (req, res, next) => {
     type,
   });
 
-  let user;
-  try {
-    user = await User.findById(req.userData.userId);
-  } catch (err) {
-    const error = new HttpError(
-      "Creating package failed, please try again.",
-      500
-    );
-    return next(error);
-  }
-
-  if (!user) {
-    const error = new HttpError("Could not find user for provided id.", 404);
-    return next(error);
-  }
-
-  try {
-    await createdPackage.save();
-    user.packages.push(createdPackage);
-    await user.save();
-  } catch (err) {
-    const error = new HttpError(
-      "Creating package failed, please try again.",
-      500
-    );
-    return next(error);
-  }
+  createdPackage.save();
 
   res.status(201).json({ package: createdPackage });
 };
 
+const deletePackage = async (req, res, next) => {
+  const packageId = req.params.packageId;
+
+  try {
+    const package = await Package.findById(packageId);
+    await package.remove();
+    res.status(200).json({ message: "Successfully deleted package" });
+  } catch (err) {
+    console.log(err);
+    const error = new HttpError("Error occured while deleting", 500);
+    return next(error);
+  }
+};
+
 exports.getPackages = getPackages;
 exports.createPackage = createPackage;
+exports.deletePackage = deletePackage;
