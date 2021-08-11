@@ -14,4 +14,6 @@ router.post(
   packageControllers.createPackage
 );
 
+router.delete("/:packageId", packageControllers.deletePackage);
+
 module.exports = router;
