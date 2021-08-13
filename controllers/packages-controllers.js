@@ -41,7 +41,7 @@ const createPackage = async (req, res, next) => {
     grade,
     categories,
     condition,
-    numberOfPackages,
+    numberOfBooks,
     price,
     type,
   } = req.body;
@@ -56,7 +56,7 @@ const createPackage = async (req, res, next) => {
     price,
     condition,
     grade: grade ? grade : null,
-    numberOfPackages,
+    numberOfBooks,
     type,
   });
 
@@ -79,6 +79,7 @@ const deletePackage = async (req, res, next) => {
   }
 };
 const addFavorite = async (req, res, next) => {
+  console.log("here");
   const packageId = req.params.packageId;
 
   let selectedPackage;
@@ -139,7 +140,7 @@ const removeFavorite = async (req, res, next) => {
 
   let user;
   try {
-    user = await User.findById(req.body.userId);
+    user = await User.findById(req.userData.userId);
   } catch (err) {
     const error = new HttpError(
       "Removing favorite failed, please try again.",

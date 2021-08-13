@@ -13,7 +13,7 @@ router.get("/browse", booksControllers.getBooks);
 
 router.get("/:bookId", booksControllers.getBookById);
 
-router.get("/user/:uid", booksControllers.getBooksByUserId);
+router.get("/user", booksControllers.getBooksByUserId);
 
 router.post(
   "/",
@@ -22,7 +22,7 @@ router.post(
   booksControllers.createBook
 );
 
-router.get("/favorites/:uid", booksControllers.getFavorite);
+router.get("/favorites", booksControllers.getFavorite);
 
 router.post("/favorites/:bookId", booksControllers.addFavorite);
 
