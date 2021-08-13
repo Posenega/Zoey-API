@@ -14,6 +14,12 @@ router.post(
   packageControllers.createPackage
 );
 
+router.get("/favorites", packageControllers.getFavorite);
+
+router.post("/favorites/:packageId", packageControllers.addFavorite);
+
+router.delete("/favorites/:packageId", packageControllers.removeFavorite);
+
 router.delete("/:packageId", packageControllers.deletePackage);
 
 module.exports = router;

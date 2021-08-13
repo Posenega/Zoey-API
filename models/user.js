@@ -11,6 +11,9 @@ const userSchema = new Schema({
   favoriteBooks: [
     { type: mongoose.Types.ObjectId, required: true, ref: "Book" },
   ],
+  favoritePackages: [
+    { type: mongoose.Types.ObjectId, required: true, ref: "Package" },
+  ],
   imageUrl: { type: String, required: false },
   city: { type: String, required: true },
   status: {
