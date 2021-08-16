@@ -20,7 +20,11 @@ const getBooks = async (req, res, next) => {
   }
 
   res.json({
-    books: books.reverse().map((book) => book.toObject({ getters: true })),
+    books: books
+      .reverse()
+      .filter(
+        (book) => req.userData.userId.toString() !== book.creator.toString()
+      ),
   });
 };
 

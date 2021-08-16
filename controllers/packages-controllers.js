@@ -21,7 +21,10 @@ const getPackages = async (req, res, next) => {
   }
 
   res.json({
-    packages: packages.map((package) => package.toObject({ getters: true })),
+    packages: packages.reverse().filter((p) => {
+      console.log(req.userData.userId !== p.creator.toString());
+      return req.userData.userId.toString() !== p.creator.toString();
+    }),
   });
 };
 
@@ -60,23 +63,90 @@ const createPackage = async (req, res, next) => {
     type,
   });
 
-  createdPackage.save();
+  let user;
+
+  user = await User.findById(req.userData.userId);
+
+  if (!user) {
+    const error = new HttpError("Could not find user for provided id.", 404);
+    return next(error);
+  }
+
+  await createdPackage.save();
+  user.packages.push(createdPackage);
+  await user.save();
 
   res.status(201).json({ package: createdPackage });
+};
+
+const getPackagesByUserId = async (req, res, next) => {
+  let userWithPackages;
+  try {
+    userWithPackages = await User.findById(req.userData.userId).populate(
+      "packages"
+    );
+  } catch (err) {
+    const error = new HttpError(
+      "Fetching packages failed, please try again later.",
+      500
+    );
+    return next(error);
+  }
+
+  res.json({
+    packages: userWithPackages.packages.map((p) =>
+      p.toObject({ getters: true })
+    ),
+  });
 };
 
 const deletePackage = async (req, res, next) => {
   const packageId = req.params.packageId;
 
+  let package;
   try {
-    const package = await Package.findById(packageId);
-    await package.remove();
-    res.status(200).json({ message: "Successfully deleted package" });
+    package = await Package.findById(packageId).populate("creator");
   } catch (err) {
-    console.log(err);
-    const error = new HttpError("Error occured while deleting", 500);
+    const error = new HttpError(
+      "Something went wrong, could not delete package.",
+      500
+    );
     return next(error);
   }
+
+  if (!package) {
+    const error = new HttpError("Could not find package for this id.", 404);
+    return next(error);
+  }
+
+  if (package.creator.id !== req.userData.userId) {
+    const error = new HttpError(
+      "You are not allowed to delete this package.",
+      401
+    );
+    return next(error);
+  }
+
+  const imagePath = package.imageUrl;
+
+  try {
+    await package.remove();
+    package.creator.packages.pull(package);
+    package.creator.favoritePackages.pull(package);
+    await package.creator.save();
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not delete package.",
+      500
+    );
+    return next(error);
+  }
+
+  fs.unlink(imagePath, (err) => {
+    console.log(err);
+  });
+
+  res.status(200).json({ message: "Deleted package." });
 };
 const addFavorite = async (req, res, next) => {
   console.log("here");
@@ -188,6 +258,7 @@ const getFavorite = async (req, res, next) => {
   }
 };
 
+exports.getPackagesByUserId = getPackagesByUserId;
 exports.removeFavorite = removeFavorite;
 exports.getFavorite = getFavorite;
 exports.addFavorite = addFavorite;

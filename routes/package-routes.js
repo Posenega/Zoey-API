@@ -16,6 +16,8 @@ router.post(
 
 router.get("/favorites", packageControllers.getFavorite);
 
+router.get("/user", packageControllers.getPackagesByUserId);
+
 router.post("/favorites/:packageId", packageControllers.addFavorite);
 
 router.delete("/favorites/:packageId", packageControllers.removeFavorite);
