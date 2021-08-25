@@ -12,7 +12,10 @@ const getUser = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return next(
-      new HttpError("Invalid inputs passed, please check your data.", 422)
+      new HttpError(
+        "Invalid inputs passed, please check your data.",
+        422
+      )
     );
   }
 
@@ -32,17 +35,25 @@ const getUser = async (req, res, next) => {
 };
 
 const updateUser = async (req, res, next) => {
-  const body = JSON.parse(JSON.stringify(req.body));
+  const body = req.body;
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return next(
-      new HttpError("Invalid inputs passed, please check your data.", 422)
+      new HttpError(
+        "Invalid inputs passed, please check your data.",
+        422
+      )
     );
   }
 
-  const { firstName, lastName, old_password, new_password, expoPushToken } =
-    body;
+  const {
+    firstName,
+    lastName,
+    old_password,
+    new_password,
+    expoPushToken,
+  } = body;
 
   let user;
 
@@ -58,14 +69,20 @@ const updateUser = async (req, res, next) => {
   }
 
   if (!user) {
-    const error = new HttpError("Invalid credentials, please try again.", 401);
+    const error = new HttpError(
+      "Invalid credentials, please try again.",
+      401
+    );
     return next(error);
   }
 
   if (old_password && new_password) {
     let isValidPassword = false;
     try {
-      isValidPassword = await bcrypt.compare(old_password, user.password);
+      isValidPassword = await bcrypt.compare(
+        old_password,
+        user.password
+      );
       console.log(isValidPassword);
     } catch (err) {
       const error = new HttpError(
@@ -109,7 +126,7 @@ const updateUser = async (req, res, next) => {
       : fs.unlink(imagePath, (err) => {
           console.log(err);
         });
-    user.imageUrl = req.file.path;
+    user.imageUrl = req.file.path.replace(/\\/g, "/");
   }
 
   try {
@@ -122,22 +139,22 @@ const updateUser = async (req, res, next) => {
     );
     return next(error);
   }
-  if (firstName && lastName && req.file) {
-    res.status(200).json({
-      firstName,
-      lastName,
-      imageUrl: user.imageUrl,
-    });
-  } else {
-    res.status(200).json({});
-  }
+
+  res.status(200).json({
+    firstName,
+    lastName,
+    imageUrl: user.imageUrl,
+  });
 };
 
 const signup = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return next(
-      new HttpError("Invalid inputs passed, please check your data.", 422)
+      new HttpError(
+        "Invalid inputs passed, please check your data.",
+        422
+      )
     );
   }
 
@@ -184,7 +201,7 @@ const signup = async (req, res, next) => {
     firstName,
     lastName,
     email,
-    // image: req.file.path,
+    // image: req.file.path.replace(/\\/g, "/"),
     password: hashedPassword,
     books: [],
     favoriteBooks: [],
@@ -263,7 +280,10 @@ const login = async (req, res, next) => {
 
   let isValidPassword = false;
   try {
-    isValidPassword = await bcrypt.compare(password, existingUser.password);
+    isValidPassword = await bcrypt.compare(
+      password,
+      existingUser.password
+    );
   } catch (err) {
     const error = new HttpError(
       "Could not log you in, please check your credentials and try again.",
@@ -340,7 +360,10 @@ const verifyUser = (req, res, next) => {
           }
         });
       } else {
-        const error = new HttpError("Invalid confirmation code.", 404);
+        const error = new HttpError(
+          "Invalid confirmation code.",
+          404
+        );
         return next(error);
       }
     })

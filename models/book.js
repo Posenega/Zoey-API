@@ -20,7 +20,7 @@ const bookSchema = new Schema(
     isForSchool: { type: Boolean, required: true },
     grade: { type: String, required: false },
   },
-  { autoCreate: true }
+  { autoCreate: true, timestamps: true }
 );
 
 module.exports = mongoose.model("Book", bookSchema);

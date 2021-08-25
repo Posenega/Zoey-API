@@ -33,7 +33,10 @@ const createPackage = async (req, res, next) => {
 
   if (!errors.isEmpty()) {
     return next(
-      new HttpError("Invalid inputs passed, please check your data.", 422)
+      new HttpError(
+        "Invalid inputs passed, please check your data.",
+        422
+      )
     );
   }
 
@@ -52,7 +55,7 @@ const createPackage = async (req, res, next) => {
   const createdPackage = new Package({
     title,
     description,
-    imageUrl: req.file.path,
+    imageUrl: req.file.path.replace(/\\/g, "/"),
     creator: req.userData.userId,
     categories: JSON.parse(categories),
     isForSchool,
@@ -68,7 +71,10 @@ const createPackage = async (req, res, next) => {
   user = await User.findById(req.userData.userId);
 
   if (!user) {
-    const error = new HttpError("Could not find user for provided id.", 404);
+    const error = new HttpError(
+      "Could not find user for provided id.",
+      404
+    );
     return next(error);
   }
 
@@ -82,10 +88,11 @@ const createPackage = async (req, res, next) => {
 const getPackagesByUserId = async (req, res, next) => {
   let userWithPackages;
   try {
-    userWithPackages = await User.findById(req.userData.userId).populate(
-      "packages"
-    );
+    userWithPackages = await User.findById(
+      req.userData.userId
+    ).populate("packages");
   } catch (err) {
+    console.log(err);
     const error = new HttpError(
       "Fetching packages failed, please try again later.",
       500
@@ -94,9 +101,9 @@ const getPackagesByUserId = async (req, res, next) => {
   }
 
   res.json({
-    packages: userWithPackages.packages.map((p) =>
-      p.toObject({ getters: true })
-    ),
+    packages: userWithPackages.packages
+      .map((p) => p.toObject({ getters: true }))
+      .reverse(),
   });
 };
 
@@ -115,7 +122,10 @@ const deletePackage = async (req, res, next) => {
   }
 
   if (!package) {
-    const error = new HttpError("Could not find package for this id.", 404);
+    const error = new HttpError(
+      "Could not find package for this id.",
+      404
+    );
     return next(error);
   }
 
@@ -175,7 +185,10 @@ const addFavorite = async (req, res, next) => {
   }
 
   if (!user) {
-    const error = new HttpError("Could not find user for provided id.", 404);
+    const error = new HttpError(
+      "Could not find user for provided id.",
+      404
+    );
     return next(error);
   }
 
@@ -220,7 +233,10 @@ const removeFavorite = async (req, res, next) => {
   }
 
   if (!user) {
-    const error = new HttpError("Could not find user for provided id.", 404);
+    const error = new HttpError(
+      "Could not find user for provided id.",
+      404
+    );
     return next(error);
   }
 
