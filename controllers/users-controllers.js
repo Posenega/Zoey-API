@@ -315,6 +315,7 @@ const login = async (req, res, next) => {
       lastName: existingUser.lastName,
       token: existingUser.status != "Active" ? null : token,
       imageUrl: existingUser.imageUrl,
+      type: existingUser.type,
     });
   } catch (err) {
     console.log(err);

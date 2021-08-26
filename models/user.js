@@ -6,8 +6,12 @@ const userSchema = new Schema({
   lastName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true, minlength: 6 },
-  books: [{ type: mongoose.Types.ObjectId, required: true, ref: "Book" }],
-  packages: [{ type: mongoose.Types.ObjectId, required: true, ref: "Package" }],
+  books: [
+    { type: mongoose.Types.ObjectId, required: true, ref: "Book" },
+  ],
+  packages: [
+    { type: mongoose.Types.ObjectId, required: true, ref: "Package" },
+  ],
   favoriteBooks: [
     { type: mongoose.Types.ObjectId, required: true, ref: "Book" },
   ],
@@ -20,6 +24,11 @@ const userSchema = new Schema({
     type: String,
     enum: ["Pending", "Active"],
     default: "Pending",
+  },
+  type: {
+    type: String,
+    enum: ["user", "manager", "admin"],
+    default: "user",
   },
   confirmationCode: {
     type: String,

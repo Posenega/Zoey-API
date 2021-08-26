@@ -4,6 +4,8 @@ const HttpError = require("../models/http-error");
 const Package = require("../models/package");
 const User = require("../models/user");
 
+const SUPER_PERMISSIONS_TYPES = ["manager", "admin"];
+
 const getPackages = async (req, res, next) => {
   let packages;
   let query = {};
@@ -128,8 +130,23 @@ const deletePackage = async (req, res, next) => {
     );
     return next(error);
   }
+  let userType;
+  try {
+    userType = (
+      await User.findById(req.userData.userId).select("type")
+    ).type;
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not delete book.",
+      500
+    );
+    return next(error);
+  }
 
-  if (package.creator.id !== req.userData.userId) {
+  if (
+    !package.creator._id.equals(req.userData.userId) &&
+    !SUPER_PERMISSIONS_TYPES.includes(userType)
+  ) {
     const error = new HttpError(
       "You are not allowed to delete this package.",
       401
@@ -137,13 +154,14 @@ const deletePackage = async (req, res, next) => {
     return next(error);
   }
 
-  const imagePath = package.imageUrl;
+  // const imagePath = package.imageUrl;
 
   try {
     await package.remove();
     package.creator.packages.pull(package);
     package.creator.favoritePackages.pull(package);
     await package.creator.save();
+    res.status(200).json({ message: "Deleted package." });
   } catch (err) {
     const error = new HttpError(
       "Something went wrong, could not delete package.",
@@ -152,11 +170,9 @@ const deletePackage = async (req, res, next) => {
     return next(error);
   }
 
-  fs.unlink(imagePath, (err) => {
-    console.log(err);
-  });
-
-  res.status(200).json({ message: "Deleted package." });
+  // fs.unlink(imagePath, (err) => {
+  //   console.log(err);
+  // });
 };
 const addFavorite = async (req, res, next) => {
   console.log("here");
