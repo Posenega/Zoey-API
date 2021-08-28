@@ -19,6 +19,7 @@ const bookSchema = new Schema(
     condition: { type: String, required: true },
     isForSchool: { type: Boolean, required: true },
     grade: { type: String, required: false },
+    isSold: { type: Boolean, required: true, default: false },
   },
   { autoCreate: true, timestamps: true }
 );

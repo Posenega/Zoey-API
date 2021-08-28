@@ -148,17 +148,7 @@ const createBook = async (req, res, next) => {
 };
 
 const updateBook = async (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return next(
-      new HttpError(
-        "Invalid inputs passed, please check your data.",
-        422
-      )
-    );
-  }
-
-  const { title, description } = req.body;
+  const { title, description, isSold } = req.body;
   const bookId = req.params.bookId;
 
   let book;
@@ -180,8 +170,9 @@ const updateBook = async (req, res, next) => {
     return next(error);
   }
 
-  book.title = title;
-  book.description = description;
+  title && (book.title = title);
+  description && (book.description = description);
+  isSold && (book.isSold = isSold);
 
   try {
     await book.save();
@@ -229,8 +220,6 @@ const deleteBook = async (req, res, next) => {
     );
     return next(error);
   }
-
- 
 
   if (
     !book.creator._id.equals(req.userData.userId) &&
