@@ -8,7 +8,7 @@ const SUPER_PERMISSIONS_TYPES = ["manager", "admin"];
 
 const getPackages = async (req, res, next) => {
   let packages;
-  let query = {};
+  let query = { isSold: false, creator: { $ne: req.userData.userId } };
   if (req.query.isMine) {
     query = { creator: req.userData.userId };
   }
@@ -23,10 +23,7 @@ const getPackages = async (req, res, next) => {
   }
 
   res.json({
-    packages: packages.reverse().filter((p) => {
-      console.log(req.userData.userId !== p.creator.toString());
-      return req.userData.userId.toString() !== p.creator.toString();
-    }),
+    packages,
   });
 };
 
@@ -35,10 +32,7 @@ const createPackage = async (req, res, next) => {
 
   if (!errors.isEmpty()) {
     return next(
-      new HttpError(
-        "Invalid inputs passed, please check your data.",
-        422
-      )
+      new HttpError("Invalid inputs passed, please check your data.", 422)
     );
   }
 
@@ -73,10 +67,7 @@ const createPackage = async (req, res, next) => {
   user = await User.findById(req.userData.userId);
 
   if (!user) {
-    const error = new HttpError(
-      "Could not find user for provided id.",
-      404
-    );
+    const error = new HttpError("Could not find user for provided id.", 404);
     return next(error);
   }
 
@@ -90,9 +81,9 @@ const createPackage = async (req, res, next) => {
 const getPackagesByUserId = async (req, res, next) => {
   let userWithPackages;
   try {
-    userWithPackages = await User.findById(
-      req.userData.userId
-    ).populate("packages");
+    userWithPackages = await User.findById(req.userData.userId).populate(
+      "packages"
+    );
   } catch (err) {
     console.log(err);
     const error = new HttpError(
@@ -104,7 +95,9 @@ const getPackagesByUserId = async (req, res, next) => {
 
   res.json({
     packages: userWithPackages.packages
-      .map((p) => p.toObject({ getters: true }))
+      .filter((myPackage) =>
+        req.query.soldPackages ? myPackage.isSold : !myPackage.isSold
+      )
       .reverse(),
   });
 };
@@ -124,20 +117,15 @@ const deletePackage = async (req, res, next) => {
   }
 
   if (!package) {
-    const error = new HttpError(
-      "Could not find package for this id.",
-      404
-    );
+    const error = new HttpError("Could not find package for this id.", 404);
     return next(error);
   }
   let userType;
   try {
-    userType = (
-      await User.findById(req.userData.userId).select("type")
-    ).type;
+    userType = (await User.findById(req.userData.userId).select("type")).type;
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong, could not delete book.",
+      "Something went wrong, could not delete package.",
       500
     );
     return next(error);
@@ -201,10 +189,7 @@ const addFavorite = async (req, res, next) => {
   }
 
   if (!user) {
-    const error = new HttpError(
-      "Could not find user for provided id.",
-      404
-    );
+    const error = new HttpError("Could not find user for provided id.", 404);
     return next(error);
   }
 
@@ -249,10 +234,7 @@ const removeFavorite = async (req, res, next) => {
   }
 
   if (!user) {
-    const error = new HttpError(
-      "Could not find user for provided id.",
-      404
-    );
+    const error = new HttpError("Could not find user for provided id.", 404);
     return next(error);
   }
 
@@ -290,6 +272,46 @@ const getFavorite = async (req, res, next) => {
   }
 };
 
+const updatePackage = async (req, res, next) => {
+  const { title, description, isSold } = req.body;
+  const packageId = req.params.packageId;
+
+  let myPackage;
+  try {
+    myPackage = await Package.findById(packageId);
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not update package.",
+      500
+    );
+    return next(error);
+  }
+
+  if (myPackage.creator.toString() !== req.userData.userId) {
+    const error = new HttpError(
+      "You are not allowed to edit this package.",
+      401
+    );
+    return next(error);
+  }
+
+  title && (myPackage.title = title);
+  description && (myPackage.description = description);
+  isSold && (myPackage.isSold = isSold);
+
+  try {
+    await myPackage.save();
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not update package.",
+      500
+    );
+    return next(error);
+  }
+
+  res.status(200).json({ package: myPackage.toObject({ getters: true }) });
+};
+
 exports.getPackagesByUserId = getPackagesByUserId;
 exports.removeFavorite = removeFavorite;
 exports.getFavorite = getFavorite;
@@ -297,3 +319,4 @@ exports.addFavorite = addFavorite;
 exports.getPackages = getPackages;
 exports.createPackage = createPackage;
 exports.deletePackage = deletePackage;
+exports.updatePackage = updatePackage;

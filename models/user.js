@@ -6,12 +6,8 @@ const userSchema = new Schema({
   lastName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true, minlength: 6 },
-  books: [
-    { type: mongoose.Types.ObjectId, required: true, ref: "Book" },
-  ],
-  packages: [
-    { type: mongoose.Types.ObjectId, required: true, ref: "Package" },
-  ],
+  books: [{ type: mongoose.Types.ObjectId, required: true, ref: "Book" }],
+  packages: [{ type: mongoose.Types.ObjectId, required: true, ref: "Package" }],
   favoriteBooks: [
     { type: mongoose.Types.ObjectId, required: true, ref: "Book" },
   ],
@@ -37,6 +33,12 @@ const userSchema = new Schema({
   expoPushToken: {
     type: String,
   },
+  isStudent: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  grade: String,
 });
 
 module.exports = mongoose.model("User", userSchema);

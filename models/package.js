@@ -19,6 +19,7 @@ const packageSchema = new Schema(
       required: true,
       ref: "User",
     },
+    isSold: { type: Boolean, required: true, default: false },
   },
   { autoCreate: true, timestamps: true }
 );

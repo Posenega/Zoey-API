@@ -12,10 +12,7 @@ const getUser = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return next(
-      new HttpError(
-        "Invalid inputs passed, please check your data.",
-        422
-      )
+      new HttpError("Invalid inputs passed, please check your data.", 422)
     );
   }
 
@@ -40,10 +37,7 @@ const updateUser = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return next(
-      new HttpError(
-        "Invalid inputs passed, please check your data.",
-        422
-      )
+      new HttpError("Invalid inputs passed, please check your data.", 422)
     );
   }
 
@@ -53,6 +47,8 @@ const updateUser = async (req, res, next) => {
     old_password,
     new_password,
     expoPushToken,
+    isStudent,
+    grade,
   } = body;
 
   let user;
@@ -69,20 +65,14 @@ const updateUser = async (req, res, next) => {
   }
 
   if (!user) {
-    const error = new HttpError(
-      "Invalid credentials, please try again.",
-      401
-    );
+    const error = new HttpError("Invalid credentials, please try again.", 401);
     return next(error);
   }
 
   if (old_password && new_password) {
     let isValidPassword = false;
     try {
-      isValidPassword = await bcrypt.compare(
-        old_password,
-        user.password
-      );
+      isValidPassword = await bcrypt.compare(old_password, user.password);
       console.log(isValidPassword);
     } catch (err) {
       const error = new HttpError(
@@ -119,6 +109,8 @@ const updateUser = async (req, res, next) => {
   firstName && (user.firstName = firstName);
   lastName && (user.lastName = lastName);
   expoPushToken && (user.expoPushToken = expoPushToken);
+  isStudent && (user.isStudent = isStudent);
+  grade && (user.grade = grade);
   user.password = user.password;
   if (req.file) {
     imagePath === undefined
@@ -144,6 +136,8 @@ const updateUser = async (req, res, next) => {
     firstName,
     lastName,
     imageUrl: user.imageUrl,
+    isStudent: user.isStudent,
+    grade: user.grade,
   });
 };
 
@@ -151,10 +145,7 @@ const signup = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return next(
-      new HttpError(
-        "Invalid inputs passed, please check your data.",
-        422
-      )
+      new HttpError("Invalid inputs passed, please check your data.", 422)
     );
   }
 
@@ -280,10 +271,7 @@ const login = async (req, res, next) => {
 
   let isValidPassword = false;
   try {
-    isValidPassword = await bcrypt.compare(
-      password,
-      existingUser.password
-    );
+    isValidPassword = await bcrypt.compare(password, existingUser.password);
   } catch (err) {
     const error = new HttpError(
       "Could not log you in, please check your credentials and try again.",
@@ -302,20 +290,23 @@ const login = async (req, res, next) => {
 
   let token;
   try {
-    token = jwt.sign(
-      { userId: existingUser.id, email: existingUser.email },
-      process.env.JWT_KEY,
-      { expiresIn: "1h" }
-    );
+    if (existingUser.status === "Active")
+      token = jwt.sign(
+        { userId: existingUser.id, email: existingUser.email },
+        process.env.JWT_KEY,
+        { expiresIn: "1h" }
+      );
 
     res.json({
       userId: existingUser.id,
       email: existingUser.email,
       firstName: existingUser.firstName,
       lastName: existingUser.lastName,
-      token: existingUser.status != "Active" ? null : token,
+      token: token,
       imageUrl: existingUser.imageUrl,
       type: existingUser.type,
+      isStudent: existingUser.isStudent,
+      grade: existingUser.grade,
     });
   } catch (err) {
     console.log(err);
@@ -361,10 +352,7 @@ const verifyUser = (req, res, next) => {
           }
         });
       } else {
-        const error = new HttpError(
-          "Invalid confirmation code.",
-          404
-        );
+        const error = new HttpError("Invalid confirmation code.", 404);
         return next(error);
       }
     })

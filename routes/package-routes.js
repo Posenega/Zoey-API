@@ -20,11 +20,10 @@ router.get("/user", packageControllers.getPackagesByUserId);
 
 router.post("/favorites/:packageId", packageControllers.addFavorite);
 
-router.delete(
-  "/favorites/:packageId",
-  packageControllers.removeFavorite
-);
+router.delete("/favorites/:packageId", packageControllers.removeFavorite);
 
 router.delete("/:packageId", packageControllers.deletePackage);
+
+router.patch("/:packageId", packageControllers.updatePackage);
 
 module.exports = router;
