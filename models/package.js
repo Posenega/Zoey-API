@@ -6,7 +6,7 @@ const packageSchema = new Schema(
   {
     title: { type: String, required: true },
     description: { type: String, required: true },
-    isForSchool: { type: String, required: true },
+    isForSchool: { type: Boolean, required: true },
     grade: { type: String, required: false },
     categories: { type: Array, required: true },
     condition: { type: String, required: true },
