@@ -25,7 +25,7 @@ const _filterChat = (chat, userId) => {
   return myChat;
 };
 
-const createChat = async (userId, secondUserId) => {
+const createChat = async (userId, secondUserId, firstMessage) => {
   try {
     const existingChat = await Chat.findOne({
       $or: [
@@ -58,17 +58,19 @@ const createChat = async (userId, secondUserId) => {
     const chat = new Chat({
       user1: userId,
       user2: secondUserId,
-      messages: [],
+      messages: [new Message({ text: firstMessage, sender: userId })],
     });
 
     const savedChat = await chat.save();
     const populatedSavedChat = await savedChat
-      .populate("user2", "firstName lastName imageUrl")
+      .populate("user2", "firstName lastName imageUrl messages")
       .execPopulate();
-    console.log(populatedSavedChat);
+
     delete populatedSavedChat._doc.user1;
     populatedSavedChat._doc.user = populatedSavedChat._doc.user2;
     delete populatedSavedChat._doc.user2;
+    delete populatedSavedChat._doc.messages[0]._doc.sender;
+    populatedSavedChat._doc.messages[0]._doc.isMine = true;
 
     return populatedSavedChat._doc;
   } catch (error) {

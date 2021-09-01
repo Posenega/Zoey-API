@@ -15,7 +15,9 @@ const getBooks = async (req, res, next) => {
     books = await Book.find({
       isSold: false,
       creator: { $ne: req.userData.userId },
-    }).sort("-createdAt");
+    })
+      .sort("-createdAt")
+      .populate("creator", "firstName lastName imageUrl");
   } catch (err) {
     const error = new HttpError(
       "Something went wrong, could not find a book.",

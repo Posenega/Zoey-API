@@ -2,8 +2,5 @@
 /nodemon.json
 /data
 /package-lock.json
-uploads/*
-!uploads/images
-uploads/images/*
-!uploads/images/.gitkeep
+/uploads
 .env

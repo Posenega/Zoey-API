@@ -56,7 +56,7 @@ module.exports = (io) => {
                   title:
                     message.sender.firstName + " " + message.sender.lastName,
                   priority: "high",
-                  data: { type: "chatRoom", userId  },
+                  data: { type: "chatRoom", userId },
                 },
               ]);
             }
@@ -64,20 +64,29 @@ module.exports = (io) => {
             callback({ error });
           }
         });
-        socket.on("addRoom", async ({ secondUserId }, callback) => {
-          try {
-            const chat = await chatControllers.createChat(userId, secondUserId);
-            callback({ chat });
-            socket.to(secondUserId).emit("roomAdded", {
-              roomId: chat._id,
-              userId: chat.user._id,
-              userImageUrl: chat.user.imageUrl,
-              username: chat.user.firstName + "" + chat.user.lastName,
-            });
-          } catch (error) {
-            callback({ error });
+        socket.on(
+          "addRoom",
+          async ({ secondUserId, firstMessage }, callback) => {
+            try {
+              const chat = await chatControllers.createChat(
+                userId,
+                secondUserId,
+                firstMessage
+              );
+
+              callback({ chat });
+              socket.to(secondUserId).emit("roomAdded", {
+                roomId: chat._id,
+                userId: chat.user._id,
+                userImageUrl: chat.user.imageUrl,
+                username: chat.user.firstName + "" + chat.user.lastName,
+              });
+            } catch (error) {
+              console.log(error);
+              callback({ error });
+            }
           }
-        });
+        );
       }
     } catch (e) {
       console.log(e);

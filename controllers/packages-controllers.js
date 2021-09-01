@@ -13,7 +13,9 @@ const getPackages = async (req, res, next) => {
     query = { creator: req.userData.userId };
   }
   try {
-    packages = await Package.find(query).sort("-createdAt");
+    packages = await Package.find(query)
+      .sort("-createdAt")
+      .populate("creator", "firstName lastName imageUrl");
   } catch (err) {
     const error = new HttpError(
       "Something went wrong, could not find a package.",
