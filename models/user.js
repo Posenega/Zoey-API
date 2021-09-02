@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const NotificationTokenSchema =
+  require("./NotificationToken").NotificationTokenSchema;
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
@@ -31,7 +33,7 @@ const userSchema = new Schema({
     unique: true,
   },
   expoPushToken: {
-    type: String,
+    type: NotificationTokenSchema,
   },
   isStudent: {
     type: Boolean,

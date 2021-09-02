@@ -7,6 +7,7 @@ const nodemailer = require("../configs/transport");
 
 const HttpError = require("../models/http-error");
 const User = require("../models/user");
+const { NotificationToken } = require("../models/NotificationToken");
 
 const getUser = async (req, res, next) => {
   const errors = validationResult(req);
@@ -108,7 +109,8 @@ const updateUser = async (req, res, next) => {
 
   firstName && (user.firstName = firstName);
   lastName && (user.lastName = lastName);
-  expoPushToken && (user.expoPushToken = expoPushToken);
+  expoPushToken &&
+    (user.expoPushToken = new NotificationToken({ token: expoPushToken }));
   isStudent && (user.isStudent = isStudent);
   grade && (user.grade = grade);
   user.password = user.password;

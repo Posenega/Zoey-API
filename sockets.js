@@ -44,13 +44,12 @@ module.exports = (io) => {
             const { expoPushToken } = await User.findById(recieverId).select(
               "expoPushToken"
             );
-            console.log(expoPushToken);
 
-            if (Expo.isExpoPushToken(expoPushToken)) {
+            if (Expo.isExpoPushToken(expoPushToken.token)) {
               console.log("noti send");
               expo.sendPushNotificationsAsync([
                 {
-                  to: expoPushToken,
+                  to: expoPushToken.token,
                   sound: "default",
                   body: text,
                   title:
@@ -68,6 +67,10 @@ module.exports = (io) => {
           "addRoom",
           async ({ secondUserId, firstMessage }, callback) => {
             try {
+              const { imageUrl, firstName, lastName } = await User.findById(
+                userId
+              ).select("imageUrl firstName lastName");
+
               const chat = await chatControllers.createChat(
                 userId,
                 secondUserId,
@@ -77,10 +80,27 @@ module.exports = (io) => {
               callback({ chat });
               socket.to(secondUserId).emit("roomAdded", {
                 roomId: chat._id,
-                userId: chat.user._id,
-                userImageUrl: chat.user.imageUrl,
-                username: chat.user.firstName + "" + chat.user.lastName,
+                userId: userId,
+                userImageUrl: imageUrl,
+                username: firstName + " " + lastName,
+                messages: chat.messages,
               });
+              const { expoPushToken } = await User.findById(
+                secondUserId
+              ).select("expoPushToken");
+              if (Expo.isExpoPushToken(expoPushToken.token)) {
+                console.log("noti send");
+                expo.sendPushNotificationsAsync([
+                  {
+                    to: expoPushToken.token,
+                    sound: "default",
+                    body: firstMessage,
+                    title: chat.user.firstName + " " + chat.user.lastName,
+                    priority: "high",
+                    data: { type: "chatRoom", userId },
+                  },
+                ]);
+              }
             } catch (error) {
               console.log(error);
               callback({ error });
