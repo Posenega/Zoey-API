@@ -59,7 +59,14 @@ const getBookById = async (req, res, next) => {
 const getBooksByUserId = async (req, res, next) => {
   let userWithBooks;
   try {
-    userWithBooks = await User.findById(req.userData.userId).populate("books");
+    userWithBooks = await User.findById(req.userData.userId)
+      .select("books")
+      .populate("books");
+    res.json({
+      books: userWithBooks.books
+        .filter((book) => (req.query.soldBooks ? book.isSold : !book.isSold))
+        .reverse(),
+    });
   } catch (err) {
     const error = new HttpError(
       "Fetching books failed, please try again later.",
@@ -67,12 +74,6 @@ const getBooksByUserId = async (req, res, next) => {
     );
     return next(error);
   }
-
-  res.json({
-    books: userWithBooks.books
-      .filter((book) => (req.query.soldBooks ? book.isSold : !book.isSold))
-      .reverse(),
-  });
 };
 
 const createBook = async (req, res, next) => {
