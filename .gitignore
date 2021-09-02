@@ -2,5 +2,5 @@
 /nodemon.json
 /data
 /package-lock.json
-/uploads
+uploads/
 .env
