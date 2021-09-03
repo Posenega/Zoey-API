@@ -11,11 +11,10 @@ module.exports = (io) => {
 
       const userId = jwt.verify(token, process.env.JWT_KEY);
 
-      socket.join(userId);
-
       const expo = new Expo();
 
       if (userId) {
+        socket.join(userId);
         socket.on("joinRoom", ({ roomId }) => {
           socket.join(roomId);
         });
@@ -69,9 +68,9 @@ module.exports = (io) => {
             try {
               const userId = jwt.verify(token, process.env.JWT_KEY).userId;
 
-              const { imageUrl, firstName, lastName } = await User.findById(
+              const { image, firstName, lastName } = await User.findById(
                 userId
-              ).select("imageUrl firstName lastName");
+              ).select("image firstName lastName");
 
               const chat = await chatControllers.createChat(
                 userId,
@@ -83,7 +82,7 @@ module.exports = (io) => {
               socket.to(secondUserId).emit("roomAdded", {
                 roomId: chat._id,
                 userId: userId,
-                userImageUrl: imageUrl,
+                userImage: image,
                 username: firstName + " " + lastName,
                 messages: chat.messages,
               });

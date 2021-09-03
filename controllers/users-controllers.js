@@ -127,7 +127,7 @@ const updateUser = async (req, res, next) => {
       });
     user.image &&
       user.image.key &&
-      s3.deleteObject({ Bucket: "zoey-storage", Key: this.image.key }, (err) =>
+      s3.deleteObject({ Bucket: "zoey-storage", Key: user.image.key }, (err) =>
         console.log(err)
       );
 
