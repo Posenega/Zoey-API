@@ -307,7 +307,7 @@ const updatePackage = async (req, res, next) => {
   if (isSold) {
     myPackage.isSold = isSold;
     const usersWhoFavoritedThisPackage = User.find({
-      favoritePackages: myPackage,
+      favoritePackages: myPackage._id,
     });
     for (var i = 0; i < usersWhoFavoritedThisPackage.length; i++) {
       usersWhoFavoritedThisPackage[i].favoritePackages.pull(myPackage);
