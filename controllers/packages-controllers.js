@@ -246,7 +246,7 @@ const removeFavorite = async (req, res, next) => {
 
   try {
     const index = user.favoritePackages.indexOf(selectedPackage);
-    user.favoritePackages.splice(index);
+    user.favoritePackages.splice(index, 1);
     await user.save();
   } catch (err) {
     console.log(err);
@@ -267,7 +267,9 @@ const getFavorite = async (req, res, next) => {
       .select("favoritePackages")
       .populate("favoritePackages");
     res.json({
-      packages: userWithPackages.favoritePackages,
+      packages: userWithPackages.favoritePackages.filter(
+        ({ isSold }) => !isSold
+      ),
     });
   } catch (err) {
     const error = new HttpError(
@@ -306,13 +308,6 @@ const updatePackage = async (req, res, next) => {
 
   if (isSold) {
     myPackage.isSold = isSold;
-    const usersWhoFavoritedThisPackage = User.find({
-      favoritePackages: myPackage._id,
-    });
-    for (var i = 0; i < usersWhoFavoritedThisPackage.length; i++) {
-      usersWhoFavoritedThisPackage[i].favoritePackages.pull(myPackage);
-      usersWhoFavoritedThisPackage[i].save();
-    }
   }
 
   try {

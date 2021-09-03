@@ -165,11 +165,6 @@ const updateBook = async (req, res, next) => {
   description && (book.description = description);
   if (isSold) {
     book.isSold = isSold;
-    const usersWhoFavoritedThisBook = User.find({ favoriteBooks: book._id });
-    for (var i = 0; i < usersWhoFavoritedThisBook.length; i++) {
-      usersWhoFavoritedThisBook[i].favoriteBooks.pull(book._id);
-      usersWhoFavoritedThisBook[i].save();
-    }
   }
 
   try {
@@ -315,7 +310,7 @@ const removeFavorite = async (req, res, next) => {
 
   try {
     const index = user.favoriteBooks.indexOf(selectedBook);
-    user.favoriteBooks.splice(index);
+    user.favoriteBooks.splice(index, 1);
     await user.save();
   } catch (err) {
     console.log(err);
@@ -335,8 +330,9 @@ const getFavorite = async (req, res, next) => {
     userWithBooks = await User.findById(req.userData.userId)
       .select("favoriteBooks")
       .populate("favoriteBooks");
+
     res.json({
-      books: userWithBooks.favoriteBooks,
+      books: userWithBooks.favoriteBooks.filter(({ isSold }) => !isSold),
     });
   } catch (err) {
     const error = new HttpError(
