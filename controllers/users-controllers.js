@@ -4,10 +4,17 @@ const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("../configs/transport");
-
+const aws = require("aws-sdk");
 const HttpError = require("../models/http-error");
 const User = require("../models/user");
 const { NotificationToken } = require("../models/NotificationToken");
+
+const s3 = new aws.S3({
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
 
 const getUser = async (req, res, next) => {
   const errors = validationResult(req);
@@ -105,8 +112,6 @@ const updateUser = async (req, res, next) => {
     user.password = hashedPassword;
   }
 
-  const imagePath = user.imageUrl;
-
   firstName && (user.firstName = firstName);
   lastName && (user.lastName = lastName);
   expoPushToken &&
@@ -115,12 +120,22 @@ const updateUser = async (req, res, next) => {
   grade && (user.grade = grade);
   user.password = user.password;
   if (req.file) {
-    imagePath === undefined
-      ? null
-      : fs.unlink(imagePath, (err) => {
-          console.log(err);
-        });
-    user.imageUrl = req.file.path.replace(/\\/g, "/");
+    user.image &&
+      user.image.path &&
+      fs.unlink(user.image.path, (err) => {
+        console.log(err);
+      });
+    user.image &&
+      user.image.key &&
+      s3.deleteObject({ Bucket: "zoey-storage", Key: this.image.key }, (err) =>
+        console.log(err)
+      );
+
+    user.image = {
+      path: req.file.path,
+      location: req.file.location,
+      key: req.file.key,
+    };
   }
 
   try {
@@ -137,7 +152,7 @@ const updateUser = async (req, res, next) => {
   res.status(200).json({
     firstName,
     lastName,
-    imageUrl: user.imageUrl,
+    image: user.image,
     isStudent: user.isStudent,
     grade: user.grade,
   });
@@ -289,7 +304,7 @@ const login = async (req, res, next) => {
       firstName: existingUser.firstName,
       lastName: existingUser.lastName,
       token: token,
-      imageUrl: existingUser.imageUrl,
+      image: existingUser.image,
       type: existingUser.type,
       isStudent: existingUser.isStudent,
       grade: existingUser.grade,

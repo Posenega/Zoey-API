@@ -8,7 +8,9 @@ module.exports = (io) => {
   io.on("connection", (socket) => {
     try {
       const token = socket.handshake.headers.authorization.split(" ")[1];
-      const { userId } = jwt.verify(token, process.env.JWT_KEY);
+
+      const userId = jwt.verify(token, process.env.JWT_KEY);
+
       socket.join(userId);
 
       const expo = new Expo();
@@ -20,12 +22,11 @@ module.exports = (io) => {
         socket.on("leaveRoom", ({ roomId }) => {
           socket.leave(roomId);
         });
-        socket.on("subscribe", () => {});
-        socket.on("unsubscribe", () => {
-          socket.leave(userId);
-        });
-        socket.on("sendMessage", async ({ roomId, text }, callback) => {
+
+        socket.on("sendMessage", async ({ roomId, text, token }, callback) => {
           try {
+            const userId = jwt.verify(token, process.env.JWT_KEY).userId;
+
             const { message, recieverId } = await chatControllers.createMessage(
               userId,
               roomId,
@@ -64,8 +65,10 @@ module.exports = (io) => {
         });
         socket.on(
           "addRoom",
-          async ({ secondUserId, firstMessage }, callback) => {
+          async ({ secondUserId, firstMessage, token }, callback) => {
             try {
+              const userId = jwt.verify(token, process.env.JWT_KEY).userId;
+
               const { imageUrl, firstName, lastName } = await User.findById(
                 userId
               ).select("imageUrl firstName lastName");

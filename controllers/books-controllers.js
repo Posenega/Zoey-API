@@ -17,7 +17,7 @@ const getBooks = async (req, res, next) => {
       creator: { $ne: req.userData.userId },
     })
       .sort("-createdAt")
-      .populate("creator", "firstName lastName imageUrl");
+      .populate("creator", "firstName lastName image");
   } catch (err) {
     const error = new HttpError(
       "Something went wrong, could not find a book.",
@@ -105,7 +105,11 @@ const createBook = async (req, res, next) => {
       title,
       description,
       numberOfBooks,
-      imageUrl: req.file.path.replace(/\\/g, "/"),
+      image: {
+        path: req.file.path,
+        location: req.file.location,
+        key: req.file.key,
+      },
       creator: req.userData.userId,
       author: author ? author : null,
       type,
@@ -214,8 +218,6 @@ const deleteBook = async (req, res, next) => {
     return next(error);
   }
 
-  const imagePath = book.imageUrl;
-
   try {
     // const sess = await mongoose.startSession();
     // sess.startTransaction(); { session: sess }
@@ -231,10 +233,6 @@ const deleteBook = async (req, res, next) => {
     );
     return next(error);
   }
-
-  fs.unlink(imagePath, (err) => {
-    console.log(err);
-  });
 
   res.status(200).json({ message: "Deleted book." });
 };

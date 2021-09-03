@@ -63,7 +63,7 @@ const createChat = async (userId, secondUserId, firstMessage) => {
 
     const savedChat = await chat.save();
     const populatedSavedChat = await savedChat
-      .populate("user2", "firstName lastName imageUrl messages")
+      .populate("user2", "firstName lastName image messages")
       .execPopulate();
 
     delete populatedSavedChat._doc.user1;
@@ -139,10 +139,10 @@ const getChats = async (req, res, next) => {
         return next(error);
       }
       const populatedChat = await chat
-        .populate("user1", "firstName lastName imageUrl", {
+        .populate("user1", "firstName lastName image", {
           _id: { $ne: req.userData.userId },
         })
-        .populate("user2", "firstName lastName imageUrl", {
+        .populate("user2", "firstName lastName image", {
           _id: { $ne: req.userData.userId },
         })
         .populate("messages")
@@ -173,10 +173,10 @@ const getChats = async (req, res, next) => {
         },
         { messages: { $slice: -1 } }
       )
-        .populate("user1", "firstName lastName imageUrl", {
+        .populate("user1", "firstName lastName image", {
           _id: { $ne: req.userData.userId },
         })
-        .populate("user2", "firstName lastName imageUrl", {
+        .populate("user2", "firstName lastName image", {
           _id: { $ne: req.userData.userId },
         });
 

@@ -16,7 +16,7 @@ const userSchema = new Schema({
   favoritePackages: [
     { type: mongoose.Types.ObjectId, required: true, ref: "Package" },
   ],
-  imageUrl: { type: String, required: false },
+  image: { type: Object, required: false },
   city: { type: String, required: true },
   status: {
     type: String,

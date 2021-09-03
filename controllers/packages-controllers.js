@@ -15,7 +15,7 @@ const getPackages = async (req, res, next) => {
   try {
     packages = await Package.find(query)
       .sort("-createdAt")
-      .populate("creator", "firstName lastName imageUrl");
+      .populate("creator", "firstName lastName image");
   } catch (err) {
     const error = new HttpError(
       "Something went wrong, could not find a package.",
@@ -53,7 +53,11 @@ const createPackage = async (req, res, next) => {
   const createdPackage = new Package({
     title,
     description,
-    imageUrl: req.file.path.replace(/\\/g, "/"),
+    image: {
+      path: req.file.path,
+      location: req.file.location,
+      key: req.file.key,
+    },
     creator: req.userData.userId,
     categories: JSON.parse(categories),
     isForSchool,
