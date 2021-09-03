@@ -168,7 +168,7 @@ const updateBook = async (req, res, next) => {
     const usersWhoFavoritedThisBook = User.find({ favoriteBooks: book });
     for (var i = 0; i < usersWhoFavoritedThisBook.length; i++) {
       usersWhoFavoritedThisBook[i].favoriteBooks.pull(book);
-      usersWhoFavoritedThisBook.save();
+      usersWhoFavoritedThisBook[i].save();
     }
   }
 
