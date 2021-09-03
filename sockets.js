@@ -14,12 +14,30 @@ module.exports = (io) => {
       const expo = new Expo();
 
       if (userId) {
-        socket.join(userId);
         socket.on("joinRoom", ({ roomId }) => {
           socket.join(roomId);
         });
         socket.on("leaveRoom", ({ roomId }) => {
           socket.leave(roomId);
+        });
+
+        socket.on("subscribe", ({ token }, callback) => {
+          let userId;
+          try {
+            userId = jwt.verify(token, process.env.JWT_KEY).userId;
+            socket.join(userId);
+          } catch (e) {
+            callback(e);
+          }
+        });
+        socket.on("unsubscribe", ({ token }, callback) => {
+          let userId;
+          try {
+            userId = jwt.verify(token, process.env.JWT_KEY).userId;
+            socket.leave(userId);
+          } catch (e) {
+            callback(e);
+          }
         });
 
         socket.on("sendMessage", async ({ roomId, text, token }, callback) => {
