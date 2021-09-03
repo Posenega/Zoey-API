@@ -303,7 +303,17 @@ const updatePackage = async (req, res, next) => {
 
   title && (myPackage.title = title);
   description && (myPackage.description = description);
-  isSold && (myPackage.isSold = isSold);
+
+  if (isSold) {
+    myPackage.isSold = isSold;
+    const usersWhoFavoritedThisPackage = User.find({
+      favoritePackages: myPackage,
+    });
+    for (var i = 0; i < usersWhoFavoritedThisPackage.length; i++) {
+      usersWhoFavoritedThisPackage[i].favoritePackages.pull(myPackage);
+      usersWhoFavoritedThisPackage[i].save();
+    }
+  }
 
   try {
     await myPackage.save();
