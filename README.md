@@ -30,7 +30,7 @@ node app.js
 
 ## You may also like...
 
-- [Zoey](https://github.com/Ghaadyy/Zoey) - Crossplatform implementation of Distancia
+- [Zoey](https://github.com/Ghaadyy/Zoey) - The book exchange app
 - [Distancia](https://github.com/selimellieh72/Distancia) - Digitalizing education
 
 
