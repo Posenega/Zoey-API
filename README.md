@@ -1,8 +1,7 @@
 
 <h1 align="center">
-  Zoey
+  Zoey ~ API
 </h1>
-<h4 align="center">Zoey ~ API</h4>
 
 ## About
 This is the backend API of Zoey ~ The Book Exchange App. Please run it on a terminal while using the app.
