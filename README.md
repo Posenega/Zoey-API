@@ -4,7 +4,7 @@
 </h1>
 
 ## About
-This is the backend API of Zoey ~ The Book Exchange App. Please run it on a terminal while using the app.
+This is the backend API of [Zoey ~ The Book Exchange App](https://github.com/Posenega/Zoey). Please run it on a terminal while using the app.
 
 ## How To Use
 
