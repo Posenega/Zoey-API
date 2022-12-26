@@ -35,9 +35,9 @@ node app.js
 
 
 ## Credits
-- [React](https://reactjs.org)
-- [React Native](https://reactnative.dev/)
-- [Expo](https://expo.dev/)
+- [Node.js](https://nodejs.org/en/)
+- [Express.js](https://expressjs.com/)
+- [MongoDB](https://www.mongodb.com/)
 - [Socket.IO](https://socket.io/)
 
 
