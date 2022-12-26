@@ -18,7 +18,7 @@ To clone and run this application, you'll need [Git](https://git-scm.com), [Node
 $ git clone https://github.com/Ghaadyy/Zoey-API
 
 # Go into the repository
-$ cd Zoey
+$ cd Zoey-API
 
 # Install dependencies
 $ npm install
@@ -30,7 +30,7 @@ node app.js
 
 ## You may also like...
 
-- [Zoey](https://github.com/Ghaadyy/Zoey) - The book exchange app
+- [Zoey](https://github.com/Posenega/Zoey) - The book exchange app
 - [Distancia](https://github.com/selimellieh72/Distancia) - Digitalizing education
 
 
